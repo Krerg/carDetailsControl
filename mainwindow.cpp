@@ -5,12 +5,18 @@
 #include <QMenu>
 #include <QMenuBar>
 #include "createcarmakewindow.h"
+#include "createcarmodelwindow.h"
+#include "createdetailcategorywindow.h"
+#include "deletedetailcategorywindow.h"
 #include "confirmwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow)
 {
+
+    this->detailCategories = new QStringList();
+
     menuBar = new QMenuBar(this);
     ui->setupUi(this);
 
@@ -37,13 +43,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->requestCarModelMenu = new QMenu(this);
     this->createCarModel = new QAction("Добавить модель", requestCarModelMenu);
+    QObject::connect(createCarModel,SIGNAL(triggered()),this,SLOT(createCarModelSlot()));
     this->deleteCarModel = new QAction("Удалить модель",requestCarModelMenu);
+    QObject::connect(deleteCarModel,SIGNAL(triggered()),this,SLOT(deleteCarModelSlot()));
     this->requestCarModelMenu->addAction(createCarModel);
     this->requestCarModelMenu->addAction(deleteCarModel);
 
     this->requestDetailCategoryMenu = new QMenu(this);
     this->createDetailCategory = new QAction("Добавить категорию", requestDetailCategoryMenu);
+    QObject::connect(createDetailCategory,SIGNAL(triggered()),this,SLOT(createDetailCategorySlot()));
     this->deleteDetailCategory = new QAction("Удалить категорию",requestDetailCategoryMenu);
+    QObject::connect(deleteDetailCategory,SIGNAL(triggered()),this,SLOT(deleteDetailCategorySlot()));
     this->requestDetailCategoryMenu->addAction(createDetailCategory);
     this->requestDetailCategoryMenu->addAction(deleteDetailCategory);
 
@@ -71,6 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->carMake,SIGNAL(clicked(QModelIndex)),this,SLOT(carMakeChanged(QModelIndex)));
     QObject::connect(this->ui->carModel,SIGNAL(clicked(QModelIndex)),this,SLOT(carModelChanged(QModelIndex)));
 
+    this->getDetailCategoriesList();
 }
 
 void MainWindow::carMakeChanged(QModelIndex t)
@@ -82,9 +93,9 @@ void MainWindow::carMakeChanged(QModelIndex t)
 
 void MainWindow::carModelChanged(QModelIndex t)
 {
-    QString sPath = fileModelCarModel->fileInfo(t).absoluteFilePath();
+    this->modelPath = fileModelCarModel->fileInfo(t).absoluteFilePath();
     ui->detailCategory->setModel(fileModelDetailCategory);
-    this->ui->detailCategory->setRootIndex(fileModelDetailCategory->setRootPath(sPath));
+    this->ui->detailCategory->setRootIndex(fileModelDetailCategory->setRootPath(modelPath));
 }
 
 void MainWindow::menuRequestCarMake(QPoint p)
@@ -120,22 +131,33 @@ void MainWindow::createCarMakeSlot()
 
 void MainWindow::createCarModelSlot()
 {
-
+    CreateCarModelWindow* m = new CreateCarModelWindow();
+    m->setPath(sPath);
+    m->setCategoriesList(this->detailCategories);
+    m->show();
 }
 
 void MainWindow::createDetailCategorySlot()
 {
-
+    CreateDetailCategoryWindow* c = new CreateDetailCategoryWindow();
+    c->setPath(globalPath);
+    c->show();
 }
 
 void MainWindow::deleteCarModelSlot()
 {
-
+    ConfirmWindow* c = new ConfirmWindow();
+    c->setPath(modelPath);
+    c->show();
 }
 
 void MainWindow::deleteDetailCategorySlot()
 {
-
+    QString catName = this->fileModelDetailCategory->fileInfo(this->ui->detailCategory->currentIndex()).fileName();
+    DeleteDetailCategoryWindow *w = new DeleteDetailCategoryWindow();
+    w->setCategoryName(catName);
+    w->setPath(globalPath);
+    w->show();
 }
 
 void MainWindow::deleteCarMakeSlot()
@@ -148,4 +170,25 @@ void MainWindow::deleteCarMakeSlot()
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::getDetailCategoriesList()
+{
+    QDir *dir = new QDir(globalPath);
+    QString tempPath = dir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
+    QString fullPath = globalPath+"/"+tempPath;
+
+    QDir *dir2 = new QDir(fullPath);
+    tempPath = dir2->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
+    fullPath += "/";
+    fullPath += tempPath;
+
+    QDir *dir3 = new QDir(fullPath);
+    QList<QFileInfo> gh = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+
+    QList<QFileInfo>::Iterator i;
+    for(i=gh.begin();i!=gh.end();i++)
+    {
+        this->detailCategories->append((*i).fileName());
+    }
 }

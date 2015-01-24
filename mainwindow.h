@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QFileSystemModel>
 #include <QMenuBar>
+#include <QStringList>
 
 namespace Ui {
 class MainWindow;
@@ -19,9 +20,13 @@ public:
 
 private:
 
+    void getDetailCategoriesList();
+
     Ui::MainWindow *ui;
 
     QString globalPath;
+
+    QString modelPath;
 
     QFileSystemModel *fileModelCarMake;
 
@@ -58,6 +63,8 @@ private:
     QWidget* createCarMakeWindow;
 
     QString sPath;
+
+    QStringList* detailCategories;
 public slots:
     void carMakeChanged(QModelIndex);
     void carModelChanged(QModelIndex);
