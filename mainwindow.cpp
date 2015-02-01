@@ -7,8 +7,10 @@
 #include "createcarmakewindow.h"
 #include "createcarmodelwindow.h"
 #include "createdetailcategorywindow.h"
+#include "createdetailwindow.h"
 #include "deletedetailcategorywindow.h"
 #include "confirmwindow.h"
+#include "settingswindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -17,25 +19,30 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->detailCategories = new QStringList();
 
-    menuBar = new QMenuBar(this);
-    ui->setupUi(this);
+    this->details = new QTreeView();
 
-    this->service = new QMenu("Сервис", this);
-    this->settings = new QAction("Настройки",this);
-    this->importToExcel = new QAction("Импорт в Excel",this);
-    this->service->addAction(settings);
-    this->service->addAction(importToExcel);
+
+    ui->setupUi(this);
+    menuBar = new QMenuBar(this);
+    this->service = new QMenu("Сервис");
+    this->settings = new QAction("Настройки",service);
+    this->importToExcel = new QAction("Импорт в Excel",service);
     this->menuBar->addMenu(service);
+    this->service->addAction(settings);
+    QObject::connect(settings,SIGNAL(triggered()),this,SLOT(openSettingsWindow()));
+    this->service->addAction(importToExcel);
+    this->menuBar->setNativeMenuBar(false);
+    menuBar->setContextMenuPolicy(Qt::CustomContextMenu);
 
     fileModelCarMake = new QFileSystemModel(this);
     fileModelCarModel = new QFileSystemModel(this);
     fileModelDetailCategory = new QFileSystemModel(this);
+    fileDetail = new QFileSystemModel(this);
     this->globalPath = "c:/carShop";
 
     this->requestCarMakeMenu = new QMenu(this);
     this->createCarMake = new QAction("Добавить марку", requestCarMakeMenu);
     QObject::connect(createCarMake,SIGNAL(triggered()),this,SLOT(createCarMakeSlot()));
-    this->createCarMakeWindow = new QWidget(this);
     this->deleteCarMake = new QAction("Удалить марку машины",requestCarMakeMenu);
     QObject::connect(deleteCarMake,SIGNAL(triggered()),this,SLOT(deleteCarMakeSlot()));
     this->requestCarMakeMenu->addAction(createCarMake);
@@ -57,6 +64,13 @@ MainWindow::MainWindow(QWidget *parent) :
     this->requestDetailCategoryMenu->addAction(createDetailCategory);
     this->requestDetailCategoryMenu->addAction(deleteDetailCategory);
 
+    this->requestDetailMenu = new QMenu(this);
+    this->createDetail = new QAction("Добавить делать",requestDetailMenu);
+    QObject::connect(createDetail,SIGNAL(triggered()),this,SLOT(createDetailSlot()));
+    this->deleteDetail = new QAction("Удалить деталь",requestDetailMenu);
+    this->requestDetailMenu->addAction(createDetail);
+    this->requestDetailMenu->addAction(deleteDetail);
+
     ui->carMake->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(ui->carMake,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(menuRequestCarMake(QPoint)));
 
@@ -65,6 +79,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->detailCategory->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(ui->detailCategory,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(menuRequsetDetailCategory(QPoint)));
+
+    ui->detail->setContextMenuPolicy(Qt::CustomContextMenu);
+    QObject::connect(ui->detail,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(menuRequestDetail(QPoint)));
 
     //кстановка фильтров на папки
     fileModelCarMake->setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
@@ -80,8 +97,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(this->ui->carMake,SIGNAL(clicked(QModelIndex)),this,SLOT(carMakeChanged(QModelIndex)));
     QObject::connect(this->ui->carModel,SIGNAL(clicked(QModelIndex)),this,SLOT(carModelChanged(QModelIndex)));
+    QObject::connect(this->ui->detailCategory,SIGNAL(clicked(QModelIndex)),this,SLOT(carDetailCategoryChanged(QModelIndex)));
 
     this->getDetailCategoriesList();
+
 }
 
 void MainWindow::carMakeChanged(QModelIndex t)
@@ -98,10 +117,21 @@ void MainWindow::carModelChanged(QModelIndex t)
     this->ui->detailCategory->setRootIndex(fileModelDetailCategory->setRootPath(modelPath));
 }
 
+void MainWindow::carDetailCategoryChanged(QModelIndex t)
+{
+    detailPath = fileModelDetailCategory->fileInfo(t).absoluteFilePath();
+    ui->detail->setModel(fileDetail);
+    ui->detail->hideColumn(1);
+    ui->detail->hideColumn(2);
+    ui->detail->hideColumn(3);
+    ui->detail->hideColumn(4);
+    ui->detail->setRootIndex(fileDetail->setRootPath(detailPath));
+}
+
 void MainWindow::menuRequestCarMake(QPoint p)
 {
     requestCarMakeMenu->removeAction(deleteCarMake);
-    if(ui->carMake->indexAt(p).row()>0)
+    if(ui->carMake->indexAt(p).row()>=0)
     requestCarMakeMenu->addAction(deleteCarMake);
     requestCarMakeMenu->popup(ui->carMake->viewport()->mapToGlobal(p));
 }
@@ -109,7 +139,7 @@ void MainWindow::menuRequestCarMake(QPoint p)
 void MainWindow::menuRequestCarModel(QPoint pos)
 {
     requestCarModelMenu->removeAction(deleteCarModel);
-    if(ui->carModel->indexAt(pos).row()>0)
+    if(ui->carModel->indexAt(pos).row()>=0)
     requestCarModelMenu->addAction(deleteCarModel);
     requestCarModelMenu->popup(ui->carModel->viewport()->mapToGlobal(pos));
 }
@@ -117,9 +147,17 @@ void MainWindow::menuRequestCarModel(QPoint pos)
 void MainWindow::menuRequsetDetailCategory(QPoint pos)
 {
     requestDetailCategoryMenu->removeAction(deleteDetailCategory);
-    if(ui->detailCategory->indexAt(pos).row()>0)
+    if(ui->detailCategory->indexAt(pos).row()>=0)
     requestDetailCategoryMenu->addAction(deleteDetailCategory);
     requestDetailCategoryMenu->popup(ui->detailCategory->viewport()->mapToGlobal(pos));
+}
+
+void MainWindow::menuRequestDetail(QPoint pos)
+{
+    requestDetailMenu->removeAction(deleteDetail);
+    if(ui->detail->indexAt(pos).row()>=0)
+    requestDetailMenu->addAction(deleteDetail);
+    requestDetailMenu->popup(ui->detail->viewport()->mapToGlobal(pos));
 }
 
 void MainWindow::createCarMakeSlot()
@@ -144,6 +182,12 @@ void MainWindow::createDetailCategorySlot()
     c->show();
 }
 
+void MainWindow::createDetailSlot()
+{
+    CreateDetailWindow* w = new CreateDetailWindow();
+    w->show();
+}
+
 void MainWindow::deleteCarModelSlot()
 {
     ConfirmWindow* c = new ConfirmWindow();
@@ -165,6 +209,11 @@ void MainWindow::deleteCarMakeSlot()
     ConfirmWindow* c = new ConfirmWindow();
     c->setPath(sPath);
     c->show();
+}
+
+void MainWindow::deleteDetailSlot()
+{
+
 }
 
 MainWindow::~MainWindow()
@@ -191,4 +240,15 @@ void MainWindow::getDetailCategoriesList()
     {
         this->detailCategories->append((*i).fileName());
     }
+}
+
+void MainWindow::openSettingsWindow()
+{
+    SettingsWindow* w = new SettingsWindow(globalPath);
+    w->show();
+}
+
+void MainWindow::setGlobalPath(QString path)
+{
+    this->globalPath = path;
 }

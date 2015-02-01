@@ -5,6 +5,7 @@
 #include <QFileSystemModel>
 #include <QMenuBar>
 #include <QStringList>
+#include <QTreeView>
 
 namespace Ui {
 class MainWindow;
@@ -34,6 +35,10 @@ private:
 
     QFileSystemModel *fileModelDetailCategory;
 
+    QTreeView* details;
+
+    QFileSystemModel *fileDetail;
+
     QMenu* service;
 
     QMenuBar* menuBar;
@@ -47,6 +52,8 @@ private:
     QMenu* requestCarModelMenu;
 
     QMenu* requestDetailCategoryMenu;
+
+    QMenu* requestDetailMenu;
 
     QAction* createCarMake;
 
@@ -62,16 +69,24 @@ private:
 
     QWidget* createCarMakeWindow;
 
+    QAction* createDetail;
+
+    QAction* deleteDetail;
+
     QString sPath;
 
     QStringList* detailCategories;
+
+    QString detailPath;
 public slots:
     void carMakeChanged(QModelIndex);
     void carModelChanged(QModelIndex);
+    void carDetailCategoryChanged(QModelIndex);
 
     void menuRequestCarMake(QPoint pos);
     void menuRequestCarModel(QPoint pos);
     void menuRequsetDetailCategory(QPoint pos);
+    void menuRequestDetail(QPoint pos);
 
     void createCarMakeSlot();
     void deleteCarMakeSlot();
@@ -81,6 +96,12 @@ public slots:
 
     void createDetailCategorySlot();
     void deleteDetailCategorySlot();
+
+    void createDetailSlot();
+    void deleteDetailSlot();
+
+    void openSettingsWindow();
+    void setGlobalPath(QString path);
 };
 
 #endif // MAINWINDOW_H

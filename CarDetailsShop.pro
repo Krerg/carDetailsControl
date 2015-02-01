@@ -18,13 +18,17 @@ SOURCES += main.cpp\
     confirmwindow.cpp \
     createcarmodelwindow.cpp \
     createdetailcategorywindow.cpp \
-    deletedetailcategorywindow.cpp
+    deletedetailcategorywindow.cpp \
+    createdetailwindow.cpp \
+    settingswindow.cpp
 
 HEADERS  += mainwindow.h \
     createcarmakewindow.h \
     confirmwindow.h \
     createcarmodelwindow.h \
     createdetailcategorywindow.h \
-    deletedetailcategorywindow.h
+    deletedetailcategorywindow.h \
+    createdetailwindow.h \
+    settingswindow.h
 
 FORMS    += mainwindow.ui
