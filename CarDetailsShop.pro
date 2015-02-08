@@ -11,7 +11,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = CarDetailsShop
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         mainwindow.cpp \
     createcarmakewindow.cpp \
@@ -32,3 +31,4 @@ HEADERS  += mainwindow.h \
     settingswindow.h
 
 FORMS    += mainwindow.ui
+include(3rdparty\QtXlsxWriter-master\src\xlsx\qtxlsx.pri)

@@ -11,11 +11,15 @@
 #include "deletedetailcategorywindow.h"
 #include "confirmwindow.h"
 #include "settingswindow.h"
+#include "3rdparty/QtXlsxWriter-master/src/xlsx/xlsxdocument.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow)
 {
+    QXlsx::Document xlsx;
+    xlsx.write("A1", "Hello Qt!");
+    xlsx.saveAs("Test.xlsx");
 
     this->detailCategories = new QStringList();
 
@@ -147,16 +151,22 @@ void MainWindow::menuRequestCarModel(QPoint pos)
 void MainWindow::menuRequsetDetailCategory(QPoint pos)
 {
     requestDetailCategoryMenu->removeAction(deleteDetailCategory);
-    if(ui->detailCategory->indexAt(pos).row()>=0)
+    if(ui->detailCategory->indexAt(pos).row()>=0) {
     requestDetailCategoryMenu->addAction(deleteDetailCategory);
+    }
     requestDetailCategoryMenu->popup(ui->detailCategory->viewport()->mapToGlobal(pos));
 }
 
 void MainWindow::menuRequestDetail(QPoint pos)
 {
     requestDetailMenu->removeAction(deleteDetail);
+    QString fp;
     if(ui->detail->indexAt(pos).row()>=0)
+    {
     requestDetailMenu->addAction(deleteDetail);
+    QModelIndex qmodel = ui->detail->selectionModel()->selectedIndexes().at(0);
+    fp = fileDetail->filePath(qmodel);
+    }
     requestDetailMenu->popup(ui->detail->viewport()->mapToGlobal(pos));
 }
 
