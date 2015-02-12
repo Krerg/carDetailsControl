@@ -1,5 +1,5 @@
-#ifndef CREATEDETAILWINDOW_H
-#define CREATEDETAILWINDOW_H
+#ifndef CREATEARTICLEWINDOW_H
+#define CREATEARTICLEWINDOW_H
 
 #include <QWidget>
 #include <QObject>
@@ -7,11 +7,11 @@
 #include <QFileDialog>
 #include <QStringList>
 
-class CreateDetailWindow : public QWidget
+class CreateArticleWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CreateDetailWindow(QWidget *parent = 0);
+    explicit CreateArticleWindow(QWidget *parent = 0);
 
     void setPath(QString path);
 

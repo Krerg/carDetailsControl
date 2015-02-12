@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1053</width>
+    <width>1188</width>
     <height>515</height>
    </rect>
   </property>
@@ -58,7 +58,7 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>560</x>
+     <x>550</x>
      <y>30</y>
      <width>151</width>
      <height>16</height>
@@ -94,16 +94,6 @@
      <x>370</x>
      <y>50</y>
      <width>151</width>
-     <height>291</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QTreeView" name="detail">
-   <property name="geometry">
-    <rect>
-     <x>540</x>
-     <y>50</y>
-     <width>191</width>
      <height>291</height>
     </rect>
    </property>
@@ -345,7 +335,7 @@
   <widget class="QLabel" name="label_14">
    <property name="geometry">
     <rect>
-     <x>760</x>
+     <x>960</x>
      <y>30</y>
      <width>151</width>
      <height>16</height>
@@ -355,20 +345,74 @@
     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Фото&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox">
+  <widget class="QListView" name="detail">
    <property name="geometry">
     <rect>
-     <x>760</x>
+     <x>530</x>
      <y>50</y>
-     <width>261</width>
+     <width>191</width>
+     <height>291</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QListView" name="detailArticle">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
+     <y>50</y>
+     <width>161</width>
+     <height>291</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_13">
+   <property name="geometry">
+    <rect>
+     <x>730</x>
+     <y>30</y>
+     <width>151</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Артикул&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QListWidget" name="gallery">
+   <property name="geometry">
+    <rect>
+     <x>900</x>
+     <y>50</y>
+     <width>271</width>
      <height>451</height>
     </rect>
    </property>
-   <property name="acceptDrops">
-    <bool>false</bool>
+   <property name="selectionMode">
+    <enum>QAbstractItemView::MultiSelection</enum>
    </property>
-   <property name="title">
-    <string/>
+   <property name="iconSize">
+    <size>
+     <width>80</width>
+     <height>80</height>
+    </size>
+   </property>
+   <property name="resizeMode">
+    <enum>QListView::Adjust</enum>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="gridSize">
+    <size>
+     <width>80</width>
+     <height>80</height>
+    </size>
+   </property>
+   <property name="viewMode">
+    <enum>QListView::IconMode</enum>
+   </property>
+   <property name="uniformItemSizes">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>

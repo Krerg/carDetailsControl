@@ -7,26 +7,40 @@
 #include "createcarmakewindow.h"
 #include "createcarmodelwindow.h"
 #include "createdetailcategorywindow.h"
-#include "createdetailwindow.h"
+#include "createarticlewindow.h"
 #include "deletedetailcategorywindow.h"
 #include "confirmwindow.h"
 #include "settingswindow.h"
 #include "3rdparty/QtXlsxWriter-master/src/xlsx/xlsxdocument.h"
+#include <QListWidget>
+#include <QProcess>
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow)
 {
-    QXlsx::Document xlsx;
-    xlsx.write("A1", "Hello Qt!");
-    xlsx.saveAs("Test.xlsx");
 
     this->detailCategories = new QStringList();
 
     this->details = new QTreeView();
 
+    this->images = new QList<QListWidgetItem*>();
+   // QListWidget *g = new QListWidget(this);
+   // g->setViewMode(QListWidget::IconMode);
+    //this->ui->gallery->setViewMode(QListWidget::IconMode);
+    //ui->gallery->setIconSize(QSize(50,50));
+    //ui->gallery->setResizeMode(QListWidget::Adjust);
+  //  QListWidgetItem *item = new QListWidgetItem(QIcon("C:/Users/sasha_000/Pictures/subway.jpg"),"Earth");
+ //   item->setData( Qt::CheckStateRole, Qt::Checked );
+  //  ui->gallery->addItem(new QListWidgetItem(QIcon("C:/Users/sasha_000/Pictures/subway.jpg"),"Earth"));
+  //  ui->gallery->addItem(new QListWidgetItem(QIcon("C:/Users/sasha_000/Pictures/subway.jpg"),"Earth"));
+  //  ui->gallery->addItem(new QListWidgetItem(QIcon("C:/Users/sasha_000/Pictures/subway.jpg"),"Earth"));
+
 
     ui->setupUi(this);
+
+
+
     menuBar = new QMenuBar(this);
     this->service = new QMenu("Сервис");
     this->settings = new QAction("Настройки",service);
@@ -42,7 +56,10 @@ MainWindow::MainWindow(QWidget *parent) :
     fileModelCarModel = new QFileSystemModel(this);
     fileModelDetailCategory = new QFileSystemModel(this);
     fileDetail = new QFileSystemModel(this);
+    fileDetailArticle = new QFileSystemModel(this);
     this->globalPath = "c:/carShop";
+    this->galleryPath = "C:/Users/sasha_000/Pictures";
+    this->updateGallery();
 
     this->requestCarMakeMenu = new QMenu(this);
     this->createCarMake = new QAction("Добавить марку", requestCarMakeMenu);
@@ -75,6 +92,13 @@ MainWindow::MainWindow(QWidget *parent) :
     this->requestDetailMenu->addAction(createDetail);
     this->requestDetailMenu->addAction(deleteDetail);
 
+    this->requestDetailArticleMenu = new QMenu(this);
+    this->createArticle = new QAction("Добавить артикул", requestDetailArticleMenu);
+    QObject::connect(createArticle,SIGNAL(triggered()),this,SLOT(createArticleSlot()));
+    this->deleteArticle = new QAction("Удалить артикул", requestDetailArticleMenu);
+    this->requestDetailArticleMenu->addAction(createArticle);
+    this->requestDetailArticleMenu->addAction(deleteArticle);
+
     ui->carMake->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(ui->carMake,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(menuRequestCarMake(QPoint)));
 
@@ -87,24 +111,31 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->detail->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(ui->detail,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(menuRequestDetail(QPoint)));
 
+    ui->detailArticle->setContextMenuPolicy(Qt::CustomContextMenu);
+    QObject::connect(ui->detailArticle,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(menuRequestDetailArticle(QPoint)));
     //кстановка фильтров на папки
     fileModelCarMake->setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
     fileModelCarModel->setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
     fileModelDetailCategory->setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
+    fileDetail->setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
 
-
+    //открытие фотки по двойному щелчку
+    QObject::connect(ui->gallery,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(openImage(QModelIndex)));
 
     //установка корневой папки
     fileModelCarMake->setRootPath(globalPath);
     ui->carMake->setModel(fileModelCarMake);
     ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
 
+    QListWidget* j = ui->gallery;
+
     QObject::connect(this->ui->carMake,SIGNAL(clicked(QModelIndex)),this,SLOT(carMakeChanged(QModelIndex)));
     QObject::connect(this->ui->carModel,SIGNAL(clicked(QModelIndex)),this,SLOT(carModelChanged(QModelIndex)));
     QObject::connect(this->ui->detailCategory,SIGNAL(clicked(QModelIndex)),this,SLOT(carDetailCategoryChanged(QModelIndex)));
+    QObject::connect(this->ui->detail,SIGNAL(clicked(QModelIndex)),this,SLOT(carDetailChanged(QModelIndex)));
+    QObject::connect(this->ui->detailArticle,SIGNAL(clicked(QModelIndex)),this,SLOT(carDetailArticleChanged(QModelIndex)));
 
     this->getDetailCategoriesList();
-
 }
 
 void MainWindow::carMakeChanged(QModelIndex t)
@@ -123,13 +154,31 @@ void MainWindow::carModelChanged(QModelIndex t)
 
 void MainWindow::carDetailCategoryChanged(QModelIndex t)
 {
-    detailPath = fileModelDetailCategory->fileInfo(t).absoluteFilePath();
+    detailCategoryPath = fileModelDetailCategory->fileInfo(t).absoluteFilePath();
     ui->detail->setModel(fileDetail);
-    ui->detail->hideColumn(1);
-    ui->detail->hideColumn(2);
-    ui->detail->hideColumn(3);
-    ui->detail->hideColumn(4);
-    ui->detail->setRootIndex(fileDetail->setRootPath(detailPath));
+    ui->detail->setRootIndex(fileDetail->setRootPath(detailCategoryPath));
+}
+
+void MainWindow::carDetailChanged(QModelIndex t)
+{
+    detailPath = fileDetail->fileInfo(t).absoluteFilePath();
+    ui->detailArticle->setModel(fileDetailArticle);
+    ui->detailArticle->setRootIndex(fileDetailArticle->setRootPath(detailPath));
+}
+
+void MainWindow::openImage(QModelIndex t)
+{
+    QString path = t.data().toString();
+    QProcess process;
+    QString fp = galleryPath+"/"+path;
+    process.start("C:/windows/system32/cmd.exe", QStringList() << "/C" << galleryPath+"/"+path);
+    process.waitForFinished(-1);
+}
+
+void MainWindow::carDetailArticleChanged(QModelIndex t)
+{
+    detailArticlePath = fileDetailArticle->fileInfo(t).absoluteFilePath();
+    qDebug()<<detailArticlePath;
 }
 
 void MainWindow::menuRequestCarMake(QPoint p)
@@ -166,8 +215,20 @@ void MainWindow::menuRequestDetail(QPoint pos)
     requestDetailMenu->addAction(deleteDetail);
     QModelIndex qmodel = ui->detail->selectionModel()->selectedIndexes().at(0);
     fp = fileDetail->filePath(qmodel);
+    QDir dir(fp);
+
     }
     requestDetailMenu->popup(ui->detail->viewport()->mapToGlobal(pos));
+}
+
+void MainWindow::menuRequestDetailArticle(QPoint pos)
+{
+    requestDetailArticleMenu->removeAction(deleteArticle);
+    if(ui->detailArticle->indexAt(pos).row()>=0)
+    {
+        requestDetailArticleMenu->addAction(deleteArticle);
+    }
+    requestDetailArticleMenu->popup(ui->detailArticle->viewport()->mapToGlobal(pos));
 }
 
 void MainWindow::createCarMakeSlot()
@@ -194,8 +255,19 @@ void MainWindow::createDetailCategorySlot()
 
 void MainWindow::createDetailSlot()
 {
-    CreateDetailWindow* w = new CreateDetailWindow();
+
+}
+
+void MainWindow::createArticleSlot()
+{
+    CreateArticleWindow* w = new CreateArticleWindow();
+    w->setPath(detailPath);
     w->show();
+}
+
+void MainWindow::deleteArticleSlot()
+{
+
 }
 
 void MainWindow::deleteCarModelSlot()
@@ -254,11 +326,61 @@ void MainWindow::getDetailCategoriesList()
 
 void MainWindow::openSettingsWindow()
 {
-    SettingsWindow* w = new SettingsWindow(globalPath);
+    SettingsWindow* w = new SettingsWindow(globalPath,galleryPath);
+    QObject::connect(w,SIGNAL(setSettings(QString,QString)),this,SLOT(setSettings(QString,QString)));
     w->show();
 }
 
-void MainWindow::setGlobalPath(QString path)
+void MainWindow::setSettings(QString path, QString galleryPath)
 {
     this->globalPath = path;
+    this->galleryPath = galleryPath;
+
+    this->updateAll();
+}
+
+void MainWindow::updateGallery()
+{
+    this->ui->gallery->clear();
+    QDir dir(galleryPath);
+    QStringList images = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
+    QList<QString>::iterator i;
+    for(i=images.begin();i!=images.end();i++)
+    {
+        QIcon j(galleryPath+"/"+(*i));
+
+        QListWidgetItem* g = new QListWidgetItem(j,(*i));
+        this->images->append(g);
+
+       g->setSizeHint(QSize(80,80));
+        this->ui->gallery->addItem(g);
+    }
+
+    int y=0;
+}
+
+void MainWindow::updateAll()
+{
+    fileModelCarMake->setRootPath(globalPath);
+    ui->carMake->setModel(fileModelCarMake);
+    ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
+
+    this->updateGallery();
+
+    delete fileModelCarModel;
+    delete fileModelDetailCategory;
+    delete fileDetail;
+    delete fileDetailArticle;
+
+    fileModelCarModel = new QFileSystemModel(this);
+    fileModelDetailCategory = new QFileSystemModel(this);
+    fileDetail = new QFileSystemModel(this);
+    fileDetailArticle = new QFileSystemModel(this);
+
+
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    event->text();
 }

@@ -6,6 +6,8 @@
 #include <QMenuBar>
 #include <QStringList>
 #include <QTreeView>
+#include <QListWidgetItem>
+#include <QKeyEvent>
 
 namespace Ui {
 class MainWindow;
@@ -19,7 +21,14 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+protected:
+    void keyPressEvent(QKeyEvent* event);
+
+
 private:
+    void updateAll();
+
+    void updateGallery();
 
     void getDetailCategoriesList();
 
@@ -27,7 +36,13 @@ private:
 
     QString globalPath;
 
+    QString galleryPath;
+
     QString modelPath;
+
+    QString detailPath;
+
+    QString detailArticlePath;
 
     QFileSystemModel *fileModelCarMake;
 
@@ -38,6 +53,8 @@ private:
     QTreeView* details;
 
     QFileSystemModel *fileDetail;
+
+    QFileSystemModel *fileDetailArticle;
 
     QMenu* service;
 
@@ -54,6 +71,8 @@ private:
     QMenu* requestDetailCategoryMenu;
 
     QMenu* requestDetailMenu;
+
+    QMenu* requestDetailArticleMenu;
 
     QAction* createCarMake;
 
@@ -73,20 +92,31 @@ private:
 
     QAction* deleteDetail;
 
+    QAction* createArticle;
+
+    QAction* deleteArticle;
+
     QString sPath;
 
     QStringList* detailCategories;
 
-    QString detailPath;
+    QString detailCategoryPath;
+
+    QList<QListWidgetItem*>* images;
 public slots:
     void carMakeChanged(QModelIndex);
     void carModelChanged(QModelIndex);
     void carDetailCategoryChanged(QModelIndex);
+    void carDetailChanged(QModelIndex);
+    void carDetailArticleChanged(QModelIndex);
+
+    void openImage(QModelIndex);
 
     void menuRequestCarMake(QPoint pos);
     void menuRequestCarModel(QPoint pos);
     void menuRequsetDetailCategory(QPoint pos);
     void menuRequestDetail(QPoint pos);
+    void menuRequestDetailArticle(QPoint pos);
 
     void createCarMakeSlot();
     void deleteCarMakeSlot();
@@ -100,8 +130,11 @@ public slots:
     void createDetailSlot();
     void deleteDetailSlot();
 
+    void createArticleSlot();
+    void deleteArticleSlot();
+
     void openSettingsWindow();
-    void setGlobalPath(QString path);
+    void setSettings(QString path, QString galleryPath);
 };
 
 #endif // MAINWINDOW_H

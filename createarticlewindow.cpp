@@ -1,8 +1,10 @@
-#include "createdetailwindow.h"
+#include "createarticlewindow.h"
 #include <QVBoxLayout>
 #include <QPushButton>
+#include <QDebug>
+#include <QFileInfo>
 
-CreateDetailWindow::CreateDetailWindow(QWidget *parent) :
+CreateArticleWindow::CreateArticleWindow(QWidget *parent) :
     QWidget(parent)
 {
     QVBoxLayout* v = new QVBoxLayout(this);
@@ -25,18 +27,46 @@ CreateDetailWindow::CreateDetailWindow(QWidget *parent) :
     QObject::connect(chooseFiles,SIGNAL(clicked()),this,SLOT(openFileDialog()));
 }
 
-void CreateDetailWindow::setPath(QString path)
+void CreateArticleWindow::setPath(QString path)
 {
     this->path = path;
 }
 
-void CreateDetailWindow::CreateDetail()
+void CreateArticleWindow::CreateDetail()
 {
+   QDir dir(path+"/"+article->text());
+   if(!dir.exists())
+   {
+        dir.mkpath(".");
+   }
+    QFile f(path+"/"+article->text()+"/"+"Описание.txt");
+   if(f.open(QIODevice::ReadWrite | QFile::Append | QFile::Text))
+   {
+        QTextStream stream(&f);
+        stream << article->text()<< endl;
+        stream << note->text()<< endl;
+        stream << originalArticle->text() << endl;
+        stream << cost->text() + "RUB" << endl;
+        stream << place->text() << endl;
+   }
+   if(files.size()>0)
+   {
+       int k=0;
+       QList<QString>::iterator i;
+       for(i=files.begin();i!=files.end();i++)
+       {
+           QFile f((*i));
+           QFileInfo *d = new QFileInfo(f);
+           QString h = path+"/"+article->text()+"/"+d->fileName();
+           bool b = QFile::copy((*i),h);
+       }
+
+   }
    this->hide();
-   delete this;
+   delete this;\
 }
 
-void CreateDetailWindow::openFileDialog()
+void CreateArticleWindow::openFileDialog()
 {
     QFileDialog dialog(this);
     dialog.setDirectory(QDir::homePath());
