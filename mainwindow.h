@@ -26,6 +26,9 @@ protected:
 
 
 private:
+
+    void clearOutput();
+
     void updateAll();
 
     void updateGallery();
@@ -99,6 +102,8 @@ private:
     QString sPath;
 
     QStringList* detailCategories;
+
+    QStringList* detailsList;
 
     QString detailCategoryPath;
 

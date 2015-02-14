@@ -22,24 +22,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->detailCategories = new QStringList();
 
+    this->detailsList = new QStringList();
+
     this->details = new QTreeView();
 
     this->images = new QList<QListWidgetItem*>();
-   // QListWidget *g = new QListWidget(this);
-   // g->setViewMode(QListWidget::IconMode);
-    //this->ui->gallery->setViewMode(QListWidget::IconMode);
-    //ui->gallery->setIconSize(QSize(50,50));
-    //ui->gallery->setResizeMode(QListWidget::Adjust);
-  //  QListWidgetItem *item = new QListWidgetItem(QIcon("C:/Users/sasha_000/Pictures/subway.jpg"),"Earth");
- //   item->setData( Qt::CheckStateRole, Qt::Checked );
-  //  ui->gallery->addItem(new QListWidgetItem(QIcon("C:/Users/sasha_000/Pictures/subway.jpg"),"Earth"));
-  //  ui->gallery->addItem(new QListWidgetItem(QIcon("C:/Users/sasha_000/Pictures/subway.jpg"),"Earth"));
-  //  ui->gallery->addItem(new QListWidgetItem(QIcon("C:/Users/sasha_000/Pictures/subway.jpg"),"Earth"));
-
 
     ui->setupUi(this);
-
-
 
     menuBar = new QMenuBar(this);
     this->service = new QMenu("Сервис");
@@ -127,8 +116,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->carMake->setModel(fileModelCarMake);
     ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
 
-    QListWidget* j = ui->gallery;
-
     QObject::connect(this->ui->carMake,SIGNAL(clicked(QModelIndex)),this,SLOT(carMakeChanged(QModelIndex)));
     QObject::connect(this->ui->carModel,SIGNAL(clicked(QModelIndex)),this,SLOT(carModelChanged(QModelIndex)));
     QObject::connect(this->ui->detailCategory,SIGNAL(clicked(QModelIndex)),this,SLOT(carDetailCategoryChanged(QModelIndex)));
@@ -136,6 +123,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->detailArticle,SIGNAL(clicked(QModelIndex)),this,SLOT(carDetailArticleChanged(QModelIndex)));
 
     this->getDetailCategoriesList();
+    this->createArticle->setShortcut(QKeySequence(Qt::Key_Alt+Qt::Key_Enter));
 }
 
 void MainWindow::carMakeChanged(QModelIndex t)
@@ -177,7 +165,76 @@ void MainWindow::openImage(QModelIndex t)
 
 void MainWindow::carDetailArticleChanged(QModelIndex t)
 {
+    this->clearOutput();
+
     detailArticlePath = fileDetailArticle->fileInfo(t).absoluteFilePath();
+    QFile describe(detailArticlePath+"/Описание.txt");
+    if (describe.open(QIODevice::ReadOnly))
+    {
+        QTextStream in(&describe);
+        QString temp = in.readLine();
+        if(temp=="")
+        {
+            return;
+        }
+        this->ui->makeOutput->setText(temp);
+
+        temp = in.readLine();
+        if(temp=="")
+        {
+            return;
+        }
+        this->ui->modelOutput->setText(temp);
+
+        temp = in.readLine();
+        if(temp=="")
+        {
+            return;
+        }
+        this->ui->categoryOutput->setText(temp);
+
+        temp = in.readLine();
+        if(temp=="")
+        {
+            return;
+        }
+        this->ui->detailOutput->setText(temp);
+
+        temp = in.readLine();
+        if(temp=="")
+        {
+            return;
+        }
+        this->ui->articleOutput->setText(temp);
+
+        temp = in.readLine();
+        if(temp=="")
+        {
+            return;
+        }
+        this->ui->costOutput->setText(temp);
+
+        temp = in.readLine();
+        if(temp=="")
+        {
+            return;
+        }
+        this->ui->originaArtcileOutput->setText(temp);
+
+        temp = in.readLine();
+        if(temp=="")
+        {
+            return;
+        }
+        this->ui->placeOutput->setText(temp);
+
+        temp = in.readLine();
+        if(temp=="")
+        {
+            return;
+        }
+        this->ui->noteOutput->setText(temp);
+    }
     qDebug()<<detailArticlePath;
 }
 
@@ -316,12 +373,29 @@ void MainWindow::getDetailCategoriesList()
 
     QDir *dir3 = new QDir(fullPath);
     QList<QFileInfo> gh = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+    tempPath = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
+    fullPath += "/";
+    fullPath += tempPath;
 
     QList<QFileInfo>::Iterator i;
     for(i=gh.begin();i!=gh.end();i++)
     {
         this->detailCategories->append((*i).fileName());
     }
+
+
+    QDir *dir4 = new QDir(fullPath);
+    gh = dir4->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+    for(i=gh.begin();i!=gh.end();i++)
+    {
+        this->detailsList->append((*i).fileName());
+    }
+
+    delete dir;
+    delete dir2;
+    delete dir3;
+    delete dir4;
+
 }
 
 void MainWindow::openSettingsWindow()
@@ -355,8 +429,6 @@ void MainWindow::updateGallery()
        g->setSizeHint(QSize(80,80));
         this->ui->gallery->addItem(g);
     }
-
-    int y=0;
 }
 
 void MainWindow::updateAll()
@@ -376,11 +448,22 @@ void MainWindow::updateAll()
     fileModelDetailCategory = new QFileSystemModel(this);
     fileDetail = new QFileSystemModel(this);
     fileDetailArticle = new QFileSystemModel(this);
-
-
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     event->text();
+}
+
+void MainWindow::clearOutput()
+{
+    this->ui->makeOutput->setText("");
+    this->ui->modelOutput->setText("");
+    this->ui->categoryOutput->setText("");
+    this->ui->detailOutput->setText("");
+    this->ui->articleOutput->setText("");
+    this->ui->costOutput->setText("");
+    this->ui->originaArtcileOutput->setText("");
+    this->ui->placeOutput->setText("");
+    this->ui->noteOutput->setText("");
 }

@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     createdetailcategorywindow.cpp \
     deletedetailcategorywindow.cpp \
     settingswindow.cpp \
-    createarticlewindow.cpp
+    createarticlewindow.cpp \
+    deletearticlewindow.cpp
 
 HEADERS  += mainwindow.h \
     createcarmakewindow.h \
@@ -28,7 +29,8 @@ HEADERS  += mainwindow.h \
     createdetailcategorywindow.h \
     deletedetailcategorywindow.h \
     settingswindow.h \
-    createarticlewindow.h
+    createarticlewindow.h \
+    deletearticlewindow.h
 
 FORMS    += mainwindow.ui
 include(3rdparty\QtXlsxWriter-master\src\xlsx\qtxlsx.pri)
