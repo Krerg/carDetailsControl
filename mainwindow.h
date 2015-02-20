@@ -69,6 +69,8 @@ private:
 
     QMenu* requestCarMakeMenu;
 
+    bool editDetail;
+
     QMenu* requestCarModelMenu;
 
     QMenu* requestDetailCategoryMenu;
