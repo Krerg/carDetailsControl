@@ -48,8 +48,8 @@ MainWindow::MainWindow(QWidget *parent) :
     fileModelDetailCategory = new QFileSystemModel(this);
     fileDetail = new QFileSystemModel(this);
     fileDetailArticle = new QFileSystemModel(this);
-    this->globalPath = "c:/carShop";
-    this->galleryPath = "C:/Users/sasha_000/Pictures";
+    this->globalPath = "c:/";
+    this->galleryPath = "C:/";
     this->updateGallery();
 
     this->requestCarMakeMenu = new QMenu(this);
@@ -366,37 +366,37 @@ void MainWindow::getDetailCategoriesList()
 {
     QDir *dir = new QDir(globalPath);
     QString tempPath = dir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
-    QString fullPath = globalPath+"/"+tempPath;
+    QString fullPath = globalPath+tempPath;
 
-    QDir *dir2 = new QDir(fullPath);
-    tempPath = dir2->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
-    fullPath += "/";
-    fullPath += tempPath;
+//    QDir *dir2 = new QDir(fullPath);
+//    tempPath = dir2->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
+//    fullPath += "/";
+//    fullPath += tempPath;
 
-    QDir *dir3 = new QDir(fullPath);
-    QList<QFileInfo> gh = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
-    tempPath = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
-    fullPath += "/";
-    fullPath += tempPath;
+//    QDir *dir3 = new QDir(fullPath);
+//    QList<QFileInfo> gh = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+//    tempPath = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
+//    fullPath += "/";
+//    fullPath += tempPath;
 
-    QList<QFileInfo>::Iterator i;
-    for(i=gh.begin();i!=gh.end();i++)
-    {
-        this->detailCategories->append((*i).fileName());
-    }
+//    QList<QFileInfo>::Iterator i;
+//    for(i=gh.begin();i!=gh.end();i++)
+//    {
+//        this->detailCategories->append((*i).fileName());
+//    }
 
 
-    QDir *dir4 = new QDir(fullPath);
-    gh = dir4->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
-    for(i=gh.begin();i!=gh.end();i++)
-    {
-        this->detailsList->append((*i).fileName());
-    }
+//    QDir *dir4 = new QDir(fullPath);
+//    gh = dir4->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+//    for(i=gh.begin();i!=gh.end();i++)
+//    {
+//        this->detailsList->append((*i).fileName());
+//    }
 
-    delete dir;
-    delete dir2;
-    delete dir3;
-    delete dir4;
+//    delete dir;
+//    delete dir2;
+//    delete dir3;
+//    delete dir4;
 
 }
 
