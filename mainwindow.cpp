@@ -49,8 +49,13 @@ MainWindow::MainWindow(QWidget *parent) :
     fileModelDetailCategory = new QFileSystemModel(this);
     fileDetail = new QFileSystemModel(this);
     fileDetailArticle = new QFileSystemModel(this);
+<<<<<<< HEAD
     this->globalPath = "c:/carShop/";
     this->galleryPath = "c:/gallery/";
+=======
+    this->globalPath = "c:/";
+    this->galleryPath = "C:/";
+>>>>>>> a89a3b4a4e83bce07a3ab37d42f6ebe7f28bc3fd
     this->updateGallery();
 
     this->requestCarMakeMenu = new QMenu(this);
@@ -372,6 +377,7 @@ void MainWindow::getDetailCategoriesList()
     QString tempPath = dir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
     QString fullPath = globalPath+tempPath;
 
+<<<<<<< HEAD
     QDir *dir2 = new QDir(fullPath);
     tempPath = dir2->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
     fullPath += "/";
@@ -401,6 +407,38 @@ void MainWindow::getDetailCategoriesList()
     delete dir;
     delete dir2;
     delete dir3;
+=======
+//    QDir *dir2 = new QDir(fullPath);
+//    tempPath = dir2->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
+//    fullPath += "/";
+//    fullPath += tempPath;
+
+//    QDir *dir3 = new QDir(fullPath);
+//    QList<QFileInfo> gh = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+//    tempPath = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
+//    fullPath += "/";
+//    fullPath += tempPath;
+
+//    QList<QFileInfo>::Iterator i;
+//    for(i=gh.begin();i!=gh.end();i++)
+//    {
+//        this->detailCategories->append((*i).fileName());
+//    }
+
+
+//    QDir *dir4 = new QDir(fullPath);
+//    gh = dir4->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+//    for(i=gh.begin();i!=gh.end();i++)
+//    {
+//        this->detailsList->append((*i).fileName());
+//    }
+
+//    delete dir;
+//    delete dir2;
+//    delete dir3;
+//    delete dir4;
+
+>>>>>>> a89a3b4a4e83bce07a3ab37d42f6ebe7f28bc3fd
 }
 
 void MainWindow::openSettingsWindow()
