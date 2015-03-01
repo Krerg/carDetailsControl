@@ -22,7 +22,7 @@ SettingsWindow::SettingsWindow(QString globalPath,QString galleryPath, QWidget *
 
 void SettingsWindow::confirm()
 {
-    emit setSettings(globalPath,galleryPath);
+    emit setSettings(globalPathEdit->text(),imageGalleryEdit->text());
     this->hide();
     delete this;
 }

@@ -23,24 +23,32 @@ void CreateCarModelWindow::setPath(QString path)
 void CreateCarModelWindow::createCarModel()
 {
     QDir dir(this->path+carModelName->text());
+    QDir temp;
     if (!dir.exists()) {
         dir.mkpath(".");
     }
-
-    QStringList::iterator i;
-    for(i=categories->begin();i!=categories->end();i++)
-    {
-        dir.setPath(this->path+carModelName->text()+"/"+(*i));
+    QStringList* tempDetailList;
+    QStringList::Iterator listIterator;
+    QMap<QString, QStringList*>::const_iterator i = detailsMap->begin();
+    while(i != detailsMap->constEnd()) {
+        dir.setPath(this->path+carModelName->text()+"/"+i.key());
         if (!dir.exists()) {
             dir.mkpath(".");
         }
+        tempDetailList = i.value();
+        for(listIterator = tempDetailList->begin();listIterator!=tempDetailList->end();listIterator++) {
+            temp.setPath(dir.path()+"/"+(*listIterator));
+            if(!temp.exists()) {
+                temp.mkpath(".");
+            }
+        }
+        ++i;
     }
-
     this->close();
     delete this;
 }
 
-void CreateCarModelWindow::setCategoriesList(QStringList *j)
+void CreateCarModelWindow::setCategoriesList(QMap<QString, QStringList*>* map)
 {
-    this->categories = j;
+    this->detailsMap = map;
 }

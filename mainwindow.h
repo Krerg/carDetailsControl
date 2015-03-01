@@ -8,6 +8,7 @@
 #include <QTreeView>
 #include <QListWidgetItem>
 #include <QKeyEvent>
+#include <QMap>
 
 namespace Ui {
 class MainWindow;
@@ -105,11 +106,13 @@ private:
 
     QStringList* detailCategories;
 
-    QStringList* detailsList;
+    QMap<QString, QStringList*>* detailsMap;
 
     QString detailCategoryPath;
 
     QList<QListWidgetItem*>* images;
+
+    QString selectedDetailCategory;
 public slots:
     void carMakeChanged(QModelIndex);
     void carModelChanged(QModelIndex);

@@ -12,7 +12,7 @@ class CreateDetailCategoryWindow : public QWidget
 public:
     explicit CreateDetailCategoryWindow(QWidget *parent = 0);
 
-    void setPath(QString path);
+    void setParameters(QString path,QMap<QString, QStringList*>* map);
 
 private:
     QLineEdit* categoryName;
@@ -22,6 +22,8 @@ private:
     QString path;
 
     QProgressBar *pb;
+
+    QMap<QString, QStringList*>* map;
 signals:
 
 public slots:

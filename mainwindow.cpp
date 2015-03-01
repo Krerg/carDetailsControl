@@ -11,6 +11,7 @@
 #include "deletedetailcategorywindow.h"
 #include "confirmwindow.h"
 #include "settingswindow.h"
+#include "createdetailwindow.h"
 #include "3rdparty/QtXlsxWriter-master/src/xlsx/xlsxdocument.h"
 #include <QListWidget>
 #include <QProcess>
@@ -19,19 +20,19 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow)
 {
+    this->selectedDetailCategory = "";
 
     this->editDetail = false;
 
     this->detailCategories = new QStringList();
 
-    this->detailsList = new QStringList();
+    this->detailsMap = new QMap<QString, QStringList*>();
 
     this->details = new QTreeView();
 
     this->images = new QList<QListWidgetItem*>();
 
     ui->setupUi(this);
-
     menuBar = new QMenuBar(this);
     this->service = new QMenu("Сервис");
     this->settings = new QAction("Настройки",service);
@@ -48,8 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
     fileModelDetailCategory = new QFileSystemModel(this);
     fileDetail = new QFileSystemModel(this);
     fileDetailArticle = new QFileSystemModel(this);
-    this->globalPath = "c:/carShop";
-    this->galleryPath = "C:/Users/sasha_000/Pictures";
+    this->globalPath = "c:/carShop/";
+    this->galleryPath = "c:/gallery/";
     this->updateGallery();
 
     this->requestCarMakeMenu = new QMenu(this);
@@ -145,6 +146,7 @@ void MainWindow::carModelChanged(QModelIndex t)
 void MainWindow::carDetailCategoryChanged(QModelIndex t)
 {
     detailCategoryPath = fileModelDetailCategory->fileInfo(t).absoluteFilePath();
+    this->selectedDetailCategory = fileModelDetailCategory->fileInfo(t).fileName();
     ui->detail->setModel(fileDetail);
     ui->detail->setRootIndex(fileDetail->setRootPath(detailCategoryPath));
 }
@@ -301,20 +303,22 @@ void MainWindow::createCarModelSlot()
 {
     CreateCarModelWindow* m = new CreateCarModelWindow();
     m->setPath(sPath);
-    m->setCategoriesList(this->detailCategories);
+    m->setCategoriesList(this->detailsMap);
     m->show();
 }
 
 void MainWindow::createDetailCategorySlot()
 {
     CreateDetailCategoryWindow* c = new CreateDetailCategoryWindow();
-    c->setPath(globalPath);
+    c->setParameters(globalPath,detailsMap);
     c->show();
 }
 
 void MainWindow::createDetailSlot()
 {
-
+    CreateDetailWindow* w = new CreateDetailWindow();
+    w->setParameters(globalPath,detailsMap,selectedDetailCategory);
+    w->show();
 }
 
 void MainWindow::createArticleSlot()
@@ -366,7 +370,7 @@ void MainWindow::getDetailCategoriesList()
 {
     QDir *dir = new QDir(globalPath);
     QString tempPath = dir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
-    QString fullPath = globalPath+"/"+tempPath;
+    QString fullPath = globalPath+tempPath;
 
     QDir *dir2 = new QDir(fullPath);
     tempPath = dir2->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
@@ -376,28 +380,27 @@ void MainWindow::getDetailCategoriesList()
     QDir *dir3 = new QDir(fullPath);
     QList<QFileInfo> gh = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
     tempPath = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
-    fullPath += "/";
-    fullPath += tempPath;
 
     QList<QFileInfo>::Iterator i;
+    QList<QFileInfo>::Iterator j;
+
     for(i=gh.begin();i!=gh.end();i++)
     {
+        QDir *dir4 = new QDir(fullPath+"/"+(*i).fileName());
+        QList<QFileInfo> infoList = dir4->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
         this->detailCategories->append((*i).fileName());
-    }
+        this->detailsMap->insert((*i).fileName(), new QStringList());
 
-
-    QDir *dir4 = new QDir(fullPath);
-    gh = dir4->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
-    for(i=gh.begin();i!=gh.end();i++)
-    {
-        this->detailsList->append((*i).fileName());
+        for(j=infoList.begin();j!=infoList.end();j++)
+        {
+            this->detailsMap->value((*i).fileName())->append((*j).fileName());
+        }
+        delete dir4;
     }
 
     delete dir;
     delete dir2;
     delete dir3;
-    delete dir4;
-
 }
 
 void MainWindow::openSettingsWindow()
@@ -411,7 +414,6 @@ void MainWindow::setSettings(QString path, QString galleryPath)
 {
     this->globalPath = path;
     this->galleryPath = galleryPath;
-
     this->updateAll();
 }
 

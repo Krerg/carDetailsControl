@@ -19,9 +19,10 @@ CreateDetailCategoryWindow::CreateDetailCategoryWindow(QWidget *parent) :
     QObject::connect(createButton,SIGNAL(clicked()),this,SLOT(createDetailCategory()));
 }
 
-void CreateDetailCategoryWindow::setPath(QString path)
+void CreateDetailCategoryWindow::setParameters(QString path,QMap<QString, QStringList*>* map)
 {
     this->path = path;
+    this->map = map;
 }
 
 void CreateDetailCategoryWindow::createDetailCategory()
@@ -29,7 +30,8 @@ void CreateDetailCategoryWindow::createDetailCategory()
     pb->setVisible(true);
     QDir dir(path);
     QDir temp1;
-    QDir temp2;
+    QDir temp2; //detail category
+    QDir temp3; //detail
     int count = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot).size();
     int currentCount=0;
     foreach(QString dirName, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))

@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QLineEdit>
-#include <QpushButton>
+#include <QPushButton>
 #include <QComboBox>
 
 class CreateCarModelWindow : public QWidget
@@ -14,13 +14,13 @@ public:
 
     void setPath(QString path);
 
-    void setCategoriesList(QStringList* j);
+    void setCategoriesList(QMap<QString, QStringList*>* map);
 private:
     QLineEdit* carModelName;
 
     QString path;
 
-    QStringList* categories;
+    QMap<QString, QStringList*>* detailsMap;
 
     QPushButton* createButton;
 
