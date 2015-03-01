@@ -369,38 +369,49 @@ MainWindow::~MainWindow()
 void MainWindow::getDetailCategoriesList()
 {
     QDir *dir = new QDir(globalPath);
+    if(dir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).size() == 0)
+    {
+        return;
+    }
     QString tempPath = dir->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
     QString fullPath = globalPath+tempPath;
+    QDir *dir2 = new QDir(fullPath);
+    if(dir2->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).size() == 0)
+    {
+        return;
+    }
+    tempPath = dir2->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
+    fullPath += "/";
+    fullPath += tempPath;
 
-//    QDir *dir2 = new QDir(fullPath);
-//    tempPath = dir2->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
-//    fullPath += "/";
-//    fullPath += tempPath;
+    QDir *dir3 = new QDir(fullPath);
+    if(dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).size() == 0)
+    {
+        return;
+    }
+    QList<QFileInfo> gh = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+    tempPath = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
 
-//    QDir *dir3 = new QDir(fullPath);
-//    QList<QFileInfo> gh = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
-//    tempPath = dir3->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs).first().fileName();
+    QList<QFileInfo>::Iterator i;
+    QList<QFileInfo>::Iterator j;
 
-//    QList<QFileInfo>::Iterator i;
-//    QList<QFileInfo>::Iterator j;
+    for(i=gh.begin();i!=gh.end();i++)
+    {
+        QDir *dir4 = new QDir(fullPath+"/"+(*i).fileName());
+        QList<QFileInfo> infoList = dir4->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+        this->detailCategories->append((*i).fileName());
+        this->detailsMap->insert((*i).fileName(), new QStringList());
 
-//    for(i=gh.begin();i!=gh.end();i++)
-//    {
-//        QDir *dir4 = new QDir(fullPath+"/"+(*i).fileName());
-//        QList<QFileInfo> infoList = dir4->entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
-//        this->detailCategories->append((*i).fileName());
-//        this->detailsMap->insert((*i).fileName(), new QStringList());
+        for(j=infoList.begin();j!=infoList.end();j++)
+        {
+            this->detailsMap->value((*i).fileName())->append((*j).fileName());
+        }
+        delete dir4;
+    }
 
-//        for(j=infoList.begin();j!=infoList.end();j++)
-//        {
-//            this->detailsMap->value((*i).fileName())->append((*j).fileName());
-//        }
-//        delete dir4;
-//    }
-
-//    delete dir;
-//    delete dir2;
-//    delete dir3;
+    delete dir;
+    delete dir2;
+    delete dir3;
 }
 
 void MainWindow::openSettingsWindow()
