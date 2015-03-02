@@ -12,12 +12,12 @@ class DeleteDetailCategoryWindow : public QWidget
 public:
     explicit DeleteDetailCategoryWindow(QWidget *parent = 0);
 
-    void setCategoryName(QString name);
-
-    void setPath(QString path);
+    void setParameters(QString path,QMap<QString, QStringList*>* map, QString categoryName);
 
 private:
     QString categoryName;
+
+    QMap<QString, QStringList*>* map;
 
     QString path;
 

@@ -6,11 +6,11 @@
 #include <QPushButton>
 #include <QProgressBar>
 
-class deleteArticleWindow : public QWidget
+class DeleteArticleWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit deleteArticleWindow(QWidget *parent = 0);
+    explicit DeleteArticleWindow(QWidget *parent = 0);
 
     void setPath(QString path);
 

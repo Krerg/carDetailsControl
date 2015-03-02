@@ -2,6 +2,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDir>
+#include <QMap>
 
 DeleteDetailCategoryWindow::DeleteDetailCategoryWindow(QWidget *parent) :
     QWidget(parent)
@@ -27,11 +28,6 @@ DeleteDetailCategoryWindow::DeleteDetailCategoryWindow(QWidget *parent) :
     QObject::connect(confirmButton,SIGNAL(clicked()),this,SLOT(deleteCategory()));
 }
 
-void DeleteDetailCategoryWindow::setCategoryName(QString name)
-{
-    this->categoryName = name;
-}
-
 void DeleteDetailCategoryWindow::deleteCategory()
 {
     //поехали
@@ -51,10 +47,11 @@ void DeleteDetailCategoryWindow::deleteCategory()
         {
             temp2.setPath(temp1.path()+"/"+dirName2+"/"+categoryName);
             if (temp2.exists()) {
-                temp2.rmdir(".");
+                temp2.removeRecursively();
             }
         }
     }
+    this->map->remove(categoryName);
     this->close();
     delete this;
 }
@@ -65,7 +62,9 @@ void DeleteDetailCategoryWindow::cancelAction()
     delete this;
 }
 
-void DeleteDetailCategoryWindow::setPath(QString path)
+void DeleteDetailCategoryWindow::setParameters(QString path, QMap<QString, QStringList*>* map,QString categoryName)
 {
     this->path = path;
+    this->map = map;
+    this->categoryName = categoryName;
 }

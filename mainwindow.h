@@ -113,6 +113,8 @@ private:
     QList<QListWidgetItem*>* images;
 
     QString selectedDetailCategory;
+
+    QFile* settingsFile;
 public slots:
     void carMakeChanged(QModelIndex);
     void carModelChanged(QModelIndex);
