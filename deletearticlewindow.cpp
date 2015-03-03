@@ -1,8 +1,8 @@
 #include "deletearticlewindow.h"
 #include <QVBoxLayout>
+#include <QDir>
 
-
-deleteArticleWindow::deleteArticleWindow(QWidget *parent) :
+DeleteArticleWindow::DeleteArticleWindow(QWidget *parent) :
     QWidget(parent)
 {
     this->pb = new QProgressBar();
@@ -21,7 +21,15 @@ deleteArticleWindow::deleteArticleWindow(QWidget *parent) :
     QObject::connect(this->confirmButton,SIGNAL(clicked()),this,SLOT(deleteArticle()));
 }
 
-void deleteArticleWindow::deleteArticle()
+void DeleteArticleWindow::deleteArticle()
 {
+    QDir dir(path);
+    dir.removeRecursively();
+    this->close();
+    delete this;
+}
 
+void DeleteArticleWindow::setPath(QString path)
+{
+    this->path = path;
 }

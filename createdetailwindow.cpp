@@ -38,7 +38,7 @@ void CreateDetailWindow::createDetail()
         ++currentCount;
         pb->setValue((int)(((double)currentCount/count)*100));
         pb->update();
-        temp1.setPath(path+dirName);
+        temp1.setPath(path+"/"+dirName);
         foreach (QString dirName2, temp1.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             temp2.setPath(temp1.path()+"/"+dirName2);
             temp3.setPath(temp2.path()+"/"+selectedCategory+"/"+detailName->text());
