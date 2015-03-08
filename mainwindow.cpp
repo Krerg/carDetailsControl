@@ -504,53 +504,54 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     qDebug()<<event->key();
     if(event->key()==16777220)
     {
-
-        if(this->editDetail == false) {
-            this->ui->articleOutput->setFocus();
-            this->ui->articleOutput->setSelection(0,50);
-            this->editDetail = true;
-            QList<QModelIndex> list = this->ui->carMake->selectionModel()->selectedIndexes();
-            this->ui->makeOutput->setText(this->ui->carMake->selectionModel()->selectedIndexes().at(0).data().toString());
-            this->ui->modelOutput->setText(this->ui->carModel->selectionModel()->selectedIndexes().at(0).data().toString());
-            this->ui->categoryOutput->setText(this->ui->detailCategory->selectionModel()->selectedIndexes().at(0).data().toString());
-            this->ui->detailOutput->setText(this->ui->detail->selectionModel()->selectedIndexes().at(0).data().toString());
-        } else {
-            //создаем артикул
-            if(this->ui->articleOutput->text()!="") {
-            //qDebug()<<detailPath+"/"+this->ui->articleOutput->text()+"/Описание.txt";
-            QDir dir(detailPath+"/"+this->ui->articleOutput->text());
-            if(!dir.exists())
-            {
-                 dir.mkpath(".");
+        if(this->ui->detailCategory->currentIndex().isValid()) {
+            if(this->editDetail == false) {
+                this->ui->articleOutput->setFocus();
+                this->ui->articleOutput->setSelection(0,50);
+                this->editDetail = true;
+                QList<QModelIndex> list = this->ui->carMake->selectionModel()->selectedIndexes();
+                this->ui->makeOutput->setText(this->ui->carMake->selectionModel()->selectedIndexes().at(0).data().toString());
+                this->ui->modelOutput->setText(this->ui->carModel->selectionModel()->selectedIndexes().at(0).data().toString());
+                this->ui->categoryOutput->setText(this->ui->detailCategory->selectionModel()->selectedIndexes().at(0).data().toString());
+                this->ui->detailOutput->setText(this->ui->detail->selectionModel()->selectedIndexes().at(0).data().toString());
+            } else {
+                //создаем артикул
+                if(this->ui->articleOutput->text()!="") {
+                //qDebug()<<detailPath+"/"+this->ui->articleOutput->text()+"/Описание.txt";
+                QDir dir(detailPath+"/"+this->ui->articleOutput->text());
+                if(!dir.exists())
+                {
+                     dir.mkpath(".");
+                }
+                QFile file(detailPath+"/"+this->ui->articleOutput->text()+"/Описание.txt");
+                if(file.open(QIODevice::ReadWrite | QFile::Append | QFile::Text))
+                {
+                     QTextStream stream(&file);
+                     stream<<this->ui->makeOutput->text() <<endl;
+                     stream<<this->ui->modelOutput->text() <<endl;
+                     stream<<this->ui->categoryOutput->text() <<endl;
+                     stream<<this->ui->detailOutput->text() <<endl;
+                     stream<<this->ui->articleOutput->text() <<endl;
+                     stream<<this->ui->costOutput->text() <<endl;
+                     stream<<this->ui->originaArtcileOutput->text() <<endl;
+                     stream<<this->ui->placeOutput->text() <<endl;
+                     stream<<this->ui->noteOutput->text() <<endl;
+                }
+                QList<QListWidgetItem*> files = this->ui->gallery->selectedItems();
+                QList<QListWidgetItem*>::Iterator i;
+                for(i=files.begin();i!=files.end();i++)
+                {
+                    QFile f(galleryPath+"/"+(*i)->text());
+                    QFileInfo *d = new QFileInfo(f);
+                    QString h = detailPath+"/"+this->ui->articleOutput->text()+"/"+d->fileName();
+                    bool b = QFile::copy(galleryPath+"/"+(*i)->text(),h);
+                    QFile::remove(galleryPath+"/"+(*i)->text());
+                    delete d;
+                }
+                }
+                this->editDetail = false;
+                this->updateGallery();
             }
-            QFile file(detailPath+"/"+this->ui->articleOutput->text()+"/Описание.txt");
-            if(file.open(QIODevice::ReadWrite | QFile::Append | QFile::Text))
-            {
-                 QTextStream stream(&file);
-                 stream<<this->ui->makeOutput->text() <<endl;
-                 stream<<this->ui->modelOutput->text() <<endl;
-                 stream<<this->ui->categoryOutput->text() <<endl;
-                 stream<<this->ui->detailOutput->text() <<endl;
-                 stream<<this->ui->articleOutput->text() <<endl;
-                 stream<<this->ui->costOutput->text() <<endl;
-                 stream<<this->ui->originaArtcileOutput->text() <<endl;
-                 stream<<this->ui->placeOutput->text() <<endl;
-                 stream<<this->ui->noteOutput->text() <<endl;
-            }
-            QList<QListWidgetItem*> files = this->ui->gallery->selectedItems();
-            QList<QListWidgetItem*>::Iterator i;
-            for(i=files.begin();i!=files.end();i++)
-            {
-                QFile f(galleryPath+"/"+(*i)->text());
-                QFileInfo *d = new QFileInfo(f);
-                QString h = detailPath+"/"+this->ui->articleOutput->text()+"/"+d->fileName();
-                bool b = QFile::copy(galleryPath+"/"+(*i)->text(),h);
-                QFile::remove(galleryPath+"/"+(*i)->text());
-                delete d;
-            }
-            }
-            this->editDetail = false;
-            this->updateGallery();
         }
     }
 }
