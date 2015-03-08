@@ -48,6 +48,7 @@ void CreateDetailCategoryWindow::createDetailCategory()
             }
         }
     }
+    this->map->insert(categoryName->text(),new QStringList());
     this->close();
     delete this;
 }
