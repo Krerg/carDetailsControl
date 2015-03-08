@@ -464,6 +464,7 @@ void MainWindow::setSettings(QString path, QString galleryPath)
 void MainWindow::updateGallery()
 {
     this->ui->gallery->clear();
+    this->ui->gallery->setUpdatesEnabled(false);
     QDir dir(galleryPath);
     QStringList images = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
     QList<QString>::iterator i;
@@ -477,6 +478,7 @@ void MainWindow::updateGallery()
        g->setSizeHint(QSize(80,80));
         this->ui->gallery->addItem(g);
     }
+    this->ui->gallery->setUpdatesEnabled(true);
 }
 
 void MainWindow::updateAll()
@@ -517,7 +519,6 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             } else {
                 //создаем артикул
                 if(this->ui->articleOutput->text()!="") {
-                //qDebug()<<detailPath+"/"+this->ui->articleOutput->text()+"/Описание.txt";
                 QDir dir(detailPath+"/"+this->ui->articleOutput->text());
                 if(!dir.exists())
                 {
@@ -546,11 +547,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                     QString h = detailPath+"/"+this->ui->articleOutput->text()+"/"+d->fileName();
                     bool b = QFile::copy(galleryPath+"/"+(*i)->text(),h);
                     QFile::remove(galleryPath+"/"+(*i)->text());
+                    this->ui->gallery->removeItemWidget((*i));
+                    delete (*i);
                     delete d;
                 }
                 }
+
                 this->editDetail = false;
-                this->updateGallery();
+                this->ui->gallery->repaint();
             }
         }
     }
