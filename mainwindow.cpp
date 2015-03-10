@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     fileModelDetailCategory = new QFileSystemModel(this);
     fileDetail = new QFileSystemModel(this);
     fileDetailArticle = new QFileSystemModel(this);
-    this->updateGallery();
+    //this->updateGallery();
 
     this->requestCarMakeMenu = new QMenu(this);
     this->createCarMake = new QAction("Добавить марку", requestCarMakeMenu);
@@ -470,13 +470,14 @@ void MainWindow::updateGallery()
     QList<QString>::iterator i;
     for(i=images.begin();i!=images.end();i++)
     {
-        QIcon j(galleryPath+"/"+(*i));
+        QIcon *j=new QIcon(galleryPath+"/"+(*i));
 
-        QListWidgetItem* g = new QListWidgetItem(j,(*i));
+        QListWidgetItem* g = new QListWidgetItem(j->pixmap(QSize(80,80)),(*i));
         this->images->append(g);
 
        g->setSizeHint(QSize(80,80));
         this->ui->gallery->addItem(g);
+       delete j;
     }
     this->ui->gallery->setUpdatesEnabled(true);
 }
