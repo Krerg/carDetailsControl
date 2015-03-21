@@ -17,45 +17,39 @@
 #include "3rdparty/QtXlsxWriter-master/src/xlsx/xlsxdocument.h"
 #include <QListWidget>
 #include <QProcess>
+#include "excelhandler.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow)
 {
     this->selectedDetailCategory = "";
-
     this->editDetail = false;
-
     this->detailCategories = new QStringList();
-
     this->detailsMap = new QMap<QString, QStringList*>();
-
     this->details = new QTreeView();
-
     this->images = new QList<QListWidgetItem*>();
-
     ui->setupUi(this);
     menuBar = new QMenuBar(this);
     this->service = new QMenu("Сервис");
     this->settings = new QAction("Настройки",service);
     this->importToExcel = new QAction("Импорт в Excel",service);
+    this->exportToExcel = new QAction("Экспор в Excel", service);
+    QObject::connect(this->exportToExcel,SIGNAL(triggered()),this,SLOT(exportToExcelSlot()));
     this->menuBar->addMenu(service);
     this->service->addAction(settings);
     QObject::connect(settings,SIGNAL(triggered()),this,SLOT(openSettingsWindow()));
     this->service->addAction(importToExcel);
+    this->service->addAction(exportToExcel);
     this->menuBar->setNativeMenuBar(false);
     this->menuBar->setMaximumHeight(23);
     this->menuBar->setMaximumWidth(58);
-
     menuBar->setContextMenuPolicy(Qt::CustomContextMenu);
-
     fileModelCarMake = new QFileSystemModel(this);
     fileModelCarModel = new QFileSystemModel(this);
     fileModelDetailCategory = new QFileSystemModel(this);
     fileDetail = new QFileSystemModel(this);
     fileDetailArticle = new QFileSystemModel(this);
-    this->updateGallery();
-
     this->requestCarMakeMenu = new QMenu(this);
     this->createCarMake = new QAction("Добавить марку", requestCarMakeMenu);
     QObject::connect(createCarMake,SIGNAL(triggered()),this,SLOT(createCarMakeSlot()));
@@ -123,6 +117,9 @@ MainWindow::MainWindow(QWidget *parent) :
     fileModelCarMake->setRootPath(globalPath);
     ui->carMake->setModel(fileModelCarMake);
     ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
+
+    ui->gallery->setIconSize(QSize(120,120));
+
 
     QObject::connect(this->ui->carMake,SIGNAL(clicked(QModelIndex)),this,SLOT(carMakeChanged(QModelIndex)));
     QObject::connect(this->ui->carModel,SIGNAL(clicked(QModelIndex)),this,SLOT(carModelChanged(QModelIndex)));
@@ -468,15 +465,15 @@ void MainWindow::updateGallery()
     QDir dir(galleryPath);
     QStringList images = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
     QList<QString>::iterator i;
+    QIcon* j;
     for(i=images.begin();i!=images.end();i++)
     {
-        QIcon j(galleryPath+"/"+(*i));
-
-        QListWidgetItem* g = new QListWidgetItem(j,(*i));
+        j = new QIcon(galleryPath+"/"+(*i));
+        QListWidgetItem* g = new QListWidgetItem((j->pixmap(QSize(80,80))),(*i));
         this->images->append(g);
-
-       g->setSizeHint(QSize(80,80));
+        g->setSizeHint(QSize(80,80));
         this->ui->gallery->addItem(g);
+        delete j;
     }
     this->ui->gallery->setUpdatesEnabled(true);
 }
@@ -571,4 +568,10 @@ void MainWindow::clearOutput()
     this->ui->originaArtcileOutput->setText("");
     this->ui->placeOutput->setText("");
     this->ui->noteOutput->setText("");
+}
+
+void MainWindow::exportToExcelSlot()
+{
+    ExcelHandler* excleHandlerWindow = new ExcelHandler(this->globalPath);
+    excleHandlerWindow->show();
 }

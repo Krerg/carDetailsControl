@@ -68,6 +68,8 @@ private:
 
     QAction* importToExcel;
 
+    QAction* exportToExcel;
+
     QMenu* requestCarMakeMenu;
 
     bool editDetail;
@@ -147,6 +149,8 @@ public slots:
 
     void openSettingsWindow();
     void setSettings(QString path, QString galleryPath);
+
+    void exportToExcelSlot();
 };
 
 #endif // MAINWINDOW_H
