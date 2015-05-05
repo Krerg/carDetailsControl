@@ -26,6 +26,10 @@ ExcelHandler::ExcelHandler(QString path, QWidget *parent) :
 
 void ExcelHandler::exportToExcel()
 {
+    QFile outputFile(outputExcelFile->text());
+    if(outputFile.exists()) {
+        outputFile.remove();
+    }
     QXlsx::Document excelFile(outputExcelFile->text());
     //шапка эксель файла
     excelFile.write("A1","IE_NAME");
@@ -38,15 +42,15 @@ void ExcelHandler::exportToExcel()
     excelFile.write("H1","IE_DETAIL_PICTURE");
     excelFile.write("I1","IP_PROP23");
 
-    excelFile.write("A2","Название запчасти");
-    excelFile.write("B2","Описание запчасти (примечания)");
-    excelFile.write("C2","Артикул");
-    excelFile.write("D2","Марка авто");
-    excelFile.write("E2","Модель");
-    excelFile.write("F2","Категория запчасти");
-    excelFile.write("G2","Цена");
-    excelFile.write("H2","Основная фотография");
-    excelFile.write("I2","Дополнительная фотография");
+//    excelFile.write("A2","Название запчасти");
+//    excelFile.write("B2","Описание запчасти (примечания)");
+//    excelFile.write("C2","Артикул");
+//    excelFile.write("D2","Марка авто");
+//    excelFile.write("E2","Модель");
+//    excelFile.write("F2","Категория запчасти");
+//    excelFile.write("G2","Цена");
+//    excelFile.write("H2","Основная фотография");
+//    excelFile.write("I2","Дополнительная фотография");
 
     pb->setVisible(true);
     QDir dir(path);
@@ -58,7 +62,7 @@ void ExcelHandler::exportToExcel()
     QStringList carMarks = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     int count = carMarks.size();
     int currentCount=0;
-    int currentExcelRow=3;
+    int currentExcelRow=2;
     foreach(QString carMark,carMarks) {
         ++currentCount;
         pb->setValue((int)(((double)currentCount/count)*100));

@@ -116,7 +116,14 @@ private:
 
     QString selectedDetailCategory;
 
+    QString selectedDetail;
+
+    /**
+     * @brief settingsFile файл настроек, где лежат пути
+     */
     QFile* settingsFile;
+
+
 public slots:
     void carMakeChanged(QModelIndex);
     void carModelChanged(QModelIndex);

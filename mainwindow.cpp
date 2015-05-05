@@ -33,8 +33,8 @@ MainWindow::MainWindow(QWidget *parent) :
     menuBar = new QMenuBar(this);
     this->service = new QMenu("Сервис");
     this->settings = new QAction("Настройки",service);
-    this->importToExcel = new QAction("Импорт в Excel",service);
-    this->exportToExcel = new QAction("Экспор в Excel", service);
+    this->importToExcel = new QAction("Импорт из Excel",service);
+    this->exportToExcel = new QAction("Экспорт в Excel", service);
     QObject::connect(this->exportToExcel,SIGNAL(triggered()),this,SLOT(exportToExcelSlot()));
     this->menuBar->addMenu(service);
     this->service->addAction(settings);
@@ -83,10 +83,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->requestDetailMenu->addAction(deleteDetail);
 
     this->requestDetailArticleMenu = new QMenu(this);
-    //this->createArticle = new QAction("Добавить артикул", requestDetailArticleMenu);
-    //QObject::connect(createArticle,SIGNAL(triggered()),this,SLOT(createArticleSlot()));
     this->deleteArticle = new QAction("Удалить артикул", requestDetailArticleMenu);
-    //this->requestDetailArticleMenu->addAction(createArticle);
+
     this->requestDetailArticleMenu->addAction(deleteArticle);
     QObject::connect(deleteArticle,SIGNAL(triggered()),this,SLOT(deleteArticleSlot()));
 
@@ -153,6 +151,15 @@ void MainWindow::carMakeChanged(QModelIndex t)
     this->sPath = fileModelCarMake->fileInfo(t).absoluteFilePath();
     ui->carModel->setModel(fileModelCarModel);
     this->ui->carModel->setRootIndex(fileModelCarModel->setRootPath(sPath));
+    QDir tmpDir(sPath);
+    QFileInfoList models = tmpDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+    if(models.size()>0) {
+    QString firstFile = models.first().fileName();
+    QModelIndex k = fileModelCarModel->index(sPath+"/"+firstFile,0);
+    this->ui->carModel->setCurrentIndex(k);
+    carModelChanged(k);
+    }
+    qDebug()<<selectedDetailCategory;
 }
 
 void MainWindow::carModelChanged(QModelIndex t)
@@ -160,6 +167,18 @@ void MainWindow::carModelChanged(QModelIndex t)
     this->modelPath = fileModelCarModel->fileInfo(t).absoluteFilePath();
     ui->detailCategory->setModel(fileModelDetailCategory);
     this->ui->detailCategory->setRootIndex(fileModelDetailCategory->setRootPath(modelPath));
+    QString selectedDetailtmp;
+    if(selectedDetailCategory!="") {
+        QModelIndex tmpIndex = fileModelDetailCategory->index(modelPath+"/"+selectedDetailCategory,0);
+        ui->detailCategory->setCurrentIndex(tmpIndex);
+        selectedDetailtmp = selectedDetail;
+        carDetailCategoryChanged(tmpIndex);
+    }
+    if(selectedDetailtmp!="") {
+        QModelIndex tmpIndex = fileDetail->index(detailCategoryPath+"/"+selectedDetailtmp,0);
+        ui->detail->setCurrentIndex(tmpIndex);
+        carDetailChanged(tmpIndex);
+    }
 }
 
 void MainWindow::carDetailCategoryChanged(QModelIndex t)
@@ -168,12 +187,16 @@ void MainWindow::carDetailCategoryChanged(QModelIndex t)
     this->selectedDetailCategory = fileModelDetailCategory->fileInfo(t).fileName();
     ui->detail->setModel(fileDetail);
     ui->detail->setRootIndex(fileDetail->setRootPath(detailCategoryPath));
+    selectedDetail="";
+    delete fileDetailArticle;
+    fileDetailArticle = new QFileSystemModel(this);
 }
 
 void MainWindow::carDetailChanged(QModelIndex t)
 {
     detailPath = fileDetail->fileInfo(t).absoluteFilePath();
     ui->detailArticle->setModel(fileDetailArticle);
+    this->selectedDetail = fileDetail->fileInfo(t).fileName();
     ui->detailArticle->setRootIndex(fileDetailArticle->setRootPath(detailPath));
 }
 
