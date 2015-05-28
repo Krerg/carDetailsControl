@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->detailsMap = new QMap<QString, QStringList*>();
     this->details = new QTreeView();
     this->images = new QList<QListWidgetItem*>();
+    this->articleImages = new QList<QListWidgetItem*>();
     ui->setupUi(this);
     menuBar = new QMenuBar(this);
     this->service = new QMenu("Сервис");
@@ -110,6 +111,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //открытие фотки по двойному щелчку
     QObject::connect(ui->gallery,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(openImage(QModelIndex)));
+
+    QObject::connect(ui->articleGallery,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(openArticleImage(QModelIndex)));
 
     //установка корневой папки
     fileModelCarMake->setRootPath(globalPath);
@@ -209,6 +212,15 @@ void MainWindow::openImage(QModelIndex t)
     process.waitForFinished(-1);
 }
 
+void MainWindow::openArticleImage(QModelIndex t)
+{
+    QString path = t.data().toString();
+    QProcess process;
+    QString fp = detailArticlePath+"/"+path;
+    process.start("C:/windows/system32/cmd.exe", QStringList() << "/C" << detailArticlePath +"/"+path);
+    process.waitForFinished(-1);
+}
+
 void MainWindow::carDetailArticleChanged(QModelIndex t)
 {
     this->clearOutput();
@@ -281,7 +293,7 @@ void MainWindow::carDetailArticleChanged(QModelIndex t)
         }
         this->ui->noteOutput->setText(temp);
     }
-    qDebug()<<detailArticlePath;
+    updateDetailGallery(detailArticlePath);
 }
 
 void MainWindow::menuRequestCarMake(QPoint p)
@@ -578,6 +590,26 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             }
         }
     }
+}
+
+void MainWindow::updateDetailGallery(QString detailPath)
+{
+    this->ui->articleGallery->clear();
+    this->ui->articleGallery->setUpdatesEnabled(false);
+    QDir dir(detailPath+"/");
+    QStringList images = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
+    QList<QString>::iterator i;
+    QIcon* j;
+    for(i=images.begin();i!=images.end();i++)
+    {
+        j = new QIcon(detailPath+"/"+(*i));
+        QListWidgetItem* g = new QListWidgetItem((j->pixmap(QSize(80,80))),(*i));
+        this->articleImages->append(g);
+        g->setSizeHint(QSize(80,80));
+        this->ui->articleGallery->addItem(g);
+        delete j;
+    }
+    this->ui->articleGallery->setUpdatesEnabled(true);
 }
 
 void MainWindow::clearOutput()

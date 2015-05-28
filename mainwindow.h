@@ -28,6 +28,8 @@ protected:
 
 private:
 
+    void updateDetailGallery(QString detailPath);
+
     void clearOutput();
 
     void updateAll();
@@ -114,6 +116,8 @@ private:
 
     QList<QListWidgetItem*>* images;
 
+    QList<QListWidgetItem*>* articleImages;
+
     QString selectedDetailCategory;
 
     QString selectedDetail;
@@ -132,6 +136,7 @@ public slots:
     void carDetailArticleChanged(QModelIndex);
 
     void openImage(QModelIndex);
+    void openArticleImage(QModelIndex);
 
     void menuRequestCarMake(QPoint pos);
     void menuRequestCarModel(QPoint pos);
