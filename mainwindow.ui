@@ -23,6 +23,19 @@
    <string>MainWindow</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="3" column="3">
+    <widget class="QLabel" name="label_9">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Артикул&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="3">
     <spacer name="verticalSpacer">
      <property name="orientation">
@@ -267,8 +280,8 @@
      </property>
      <property name="iconSize">
       <size>
-       <width>100</width>
-       <height>100</height>
+       <width>180</width>
+       <height>180</height>
       </size>
      </property>
      <property name="resizeMode">
@@ -282,8 +295,8 @@
      </property>
      <property name="gridSize">
       <size>
-       <width>90</width>
-       <height>90</height>
+       <width>110</width>
+       <height>110</height>
       </size>
      </property>
      <property name="viewMode">
@@ -317,19 +330,6 @@
     <widget class="QLineEdit" name="makeOutput">
      <property name="readOnly">
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="3">
-    <widget class="QLabel" name="label_9">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Артикул&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </item>
@@ -540,7 +540,14 @@
      </property>
     </widget>
    </item>
-   <item row="8" column="0" colspan="6">
+   <item row="9" column="6">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Обновить галерею</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" rowspan="2" colspan="6">
     <widget class="QListWidget" name="articleGallery">
      <property name="autoScrollMargin">
       <number>1</number>

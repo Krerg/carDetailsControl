@@ -28,6 +28,10 @@ protected:
 
 private:
 
+    void clearFileSystems();
+
+    void updateDetails();
+
     void updateDetailGallery(QString detailPath);
 
     void clearOutput();
@@ -68,7 +72,7 @@ private:
 
     QAction* settings;
 
-    QAction* importToExcel;
+    QAction* importFromExcel;
 
     QAction* exportToExcel;
 
@@ -84,15 +88,25 @@ private:
 
     QMenu* requestDetailArticleMenu;
 
+    QMenu* requestGalleryMenu;
+
+    QMenu* requestDetailGalleryMenu;
+
     QAction* createCarMake;
+
+    QAction* renameCarMake;
 
     QAction* deleteCarMake;
 
     QAction* createCarModel;
 
+    QAction* renameCarModel;
+
     QAction* deleteCarModel;
 
     QAction* createDetailCategory;
+
+    QAction* renameDetailCategory;
 
     QAction* deleteDetailCategory;
 
@@ -100,11 +114,21 @@ private:
 
     QAction* createDetail;
 
+    QAction* renameDetail;
+
     QAction* deleteDetail;
 
     QAction* createArticle;
 
     QAction* deleteArticle;
+
+    QAction* changeArticle;
+
+    QAction* deleteImage;
+
+    QAction* add2ExistArticle;
+
+    QAction* returnImage;
 
     QString sPath;
 
@@ -143,11 +167,15 @@ public slots:
     void menuRequsetDetailCategory(QPoint pos);
     void menuRequestDetail(QPoint pos);
     void menuRequestDetailArticle(QPoint pos);
+    void menuRequestGallery(QPoint pos);
+    void menuRequsetDetailGallery(QPoint pos);
 
     void createCarMakeSlot();
+    void renameCarMakeSlot();
     void deleteCarMakeSlot();
 
     void createCarModelSlot();
+    void renameCarModelSlot();
     void deleteCarModelSlot();
 
     void createDetailCategorySlot();
@@ -158,11 +186,21 @@ public slots:
 
     void createArticleSlot();
     void deleteArticleSlot();
+    void changeArticleSlot();
+
+    void returnImageSlot();
+    void deleteImageSlot();
+    void add2ExistArticleSlot();
 
     void openSettingsWindow();
     void setSettings(QString path, QString galleryPath);
 
     void exportToExcelSlot();
+    void importFromExcelSlot();
+
+    void updateArticlesInfosFiles();
+private slots:
+    void on_pushButton_clicked();
 };
 
 #endif // MAINWINDOW_H
