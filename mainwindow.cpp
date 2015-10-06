@@ -13,12 +13,16 @@
 #include "deletearticlewindow.h"
 #include "deletedetailwindow.h"
 #include "confirmwindow.h"
+#include "renamedetailcategory.h"
+#include "renamedetailwindow.h"
 #include "changearticlewindow.h"
 #include "settingswindow.h"
 #include "createdetailwindow.h"
 #include "3rdparty/QtXlsxWriter-master/src/xlsx/xlsxdocument.h"
+#include "updatingwindow.h"
 #include <QListWidget>
 #include <QProcess>
+#include <QMessageBox>
 #include "excelhandler.h"
 #include "importfromexcelwindow.h"
 
@@ -27,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+
+
     this->ui->gallery->setIconSize(QSize(5,5));
     this->selectedDetailCategory = "";
     this->editDetail = false;
@@ -83,17 +90,23 @@ MainWindow::MainWindow(QWidget *parent) :
     this->requestDetailCategoryMenu = new QMenu(this);
     this->createDetailCategory = new QAction("Добавить категорию", requestDetailCategoryMenu);
     QObject::connect(createDetailCategory,SIGNAL(triggered()),this,SLOT(createDetailCategorySlot()));
+    this->renameDetailCategory = new QAction("Переименовать",requestDetailCategoryMenu);
+    QObject::connect(renameDetailCategory,SIGNAL(triggered()),this,SLOT(renameDetailCategorySlot()));
     this->deleteDetailCategory = new QAction("Удалить категорию",requestDetailCategoryMenu);
     QObject::connect(deleteDetailCategory,SIGNAL(triggered()),this,SLOT(deleteDetailCategorySlot()));
     this->requestDetailCategoryMenu->addAction(createDetailCategory);
+    this->requestDetailCategoryMenu->addAction(renameDetailCategory);
     this->requestDetailCategoryMenu->addAction(deleteDetailCategory);
 
     this->requestDetailMenu = new QMenu(this);
     this->createDetail = new QAction("Добавить делать",requestDetailMenu);
     QObject::connect(createDetail,SIGNAL(triggered()),this,SLOT(createDetailSlot()));
+    this->renameDetail = new QAction("Переименовать деталь",requestDetailMenu);
+    QObject::connect(renameDetail,SIGNAL(triggered()),this,SLOT(renameDetailSlot()));
     this->deleteDetail = new QAction("Удалить деталь",requestDetailMenu);
     QObject::connect(deleteDetail,SIGNAL(triggered()),this,SLOT(deleteDetailSlot()));
     this->requestDetailMenu->addAction(createDetail);
+    this->requestDetailMenu->addAction(renameDetail);
     this->requestDetailMenu->addAction(deleteDetail);
 
     this->requestDetailArticleMenu = new QMenu(this);
@@ -184,7 +197,6 @@ MainWindow::MainWindow(QWidget *parent) :
         out << galleryPath << endl;
     }
     this->setSettings(globalPath,galleryPath);
-    this->getDetailCategoriesList();
 }
 
 void MainWindow::carMakeChanged(QModelIndex t)
@@ -270,7 +282,8 @@ void MainWindow::carDetailArticleChanged(QModelIndex t)
     this->clearOutput();
 
     detailArticlePath = fileDetailArticle->fileInfo(t).absoluteFilePath();
-    QFile describe(detailArticlePath+"/Описание.txt");
+    QString articleName=this->fileDetailArticle->fileInfo(this->ui->detailArticle->currentIndex()).fileName();
+    QFile describe(detailArticlePath+"/"+articleName+".txt");
     if (describe.open(QIODevice::ReadOnly))
     {
         QTextStream in(&describe);
@@ -416,6 +429,11 @@ void MainWindow::createCarModelSlot()
 void MainWindow::renameCarModelSlot()
 {
 
+    QString path2Model = globalPath+"/"+this->ui->carMake->selectionModel()->selectedIndexes().at(0).data().toString();
+    RenameCarMakeWindow* rcmw = new RenameCarMakeWindow(path2Model,this->ui->carModel->selectionModel()->selectedIndexes().at(0).data().toString());
+    QObject::connect(rcmw,SIGNAL(updateArticlesInfos()),this,SLOT(updateArticlesInfosFiles()));
+    this->clearFileSystems();
+    rcmw->show();
 }
 
 void MainWindow::createDetailCategorySlot()
@@ -425,11 +443,30 @@ void MainWindow::createDetailCategorySlot()
     c->show();
 }
 
+void MainWindow::renameDetailCategorySlot()
+{
+    QString selectedDetailCategory = this->ui->detailCategory->selectionModel()->selectedIndexes().at(0).data().toString();
+    RenameDetailCategory* rdcw = new RenameDetailCategory(globalPath,selectedDetailCategory,detailsMap);
+    QObject::connect(rdcw,SIGNAL(updateArticlesInfos()),this,SLOT(updateArticlesInfosFiles()));
+    this->clearFileSystems();
+    rdcw->show();
+}
+
 void MainWindow::createDetailSlot()
 {
     CreateDetailWindow* w = new CreateDetailWindow();
     w->setParameters(globalPath,detailsMap,selectedDetailCategory);
     w->show();
+}
+
+void MainWindow::renameDetailSlot()
+{
+    QString detail = this->ui->detail->selectionModel()->selectedIndexes().at(0).data().toString();
+    QString selectedCategory = this->ui->detailCategory->selectionModel()->selectedIndexes().at(0).data().toString();
+    RenameDetailWindow* rdw = new RenameDetailWindow(globalPath,selectedCategory,detail,detailsMap);
+    QObject::connect(rdw,SIGNAL(updateArticlesInfos()),this,SLOT(updateArticlesInfosFiles()));
+    this->clearFileSystems();
+    rdw->show();
 }
 
 void MainWindow::createArticleSlot()
@@ -448,7 +485,7 @@ void MainWindow::deleteArticleSlot()
 
 void MainWindow::changeArticleSlot()
 {
-    ChangeArticleWindow* caw = new ChangeArticleWindow(detailPath+"/"+this->ui->articleOutput->text());
+    ChangeArticleWindow* caw = new ChangeArticleWindow(detailPath+"/"+this->ui->articleOutput->text(),this->ui->articleOutput->text());
 }
 
 void MainWindow::returnImageSlot()
@@ -460,7 +497,18 @@ void MainWindow::returnImageSlot()
         QFile f(detailArticlePath+"/"+(*i)->text());
         QFileInfo *d = new QFileInfo(f);
         bool b = QFile::copy(detailArticlePath+"/"+d->fileName(),galleryPath+"/"+d->fileName());
+
+        QIcon* j = new QIcon(galleryPath+"/"+d->fileName());
+        QListWidgetItem* g = new QListWidgetItem((j->pixmap(QSize(120,120))),d->fileName());
+        this->images->append(g);
+        g->setSizeHint(QSize(120,120));
+        this->ui->gallery->addItem(g);
+        delete j;
+
         QFile::remove(detailArticlePath+"/"+(*i)->text());
+
+
+
         delete d;
     }
     for(i=files.begin();i!=files.end();i++)
@@ -468,7 +516,6 @@ void MainWindow::returnImageSlot()
         delete (*i);
     }
     updateDetailGallery(detailArticlePath);
-    updateGallery();
 }
 
 void MainWindow::deleteImageSlot()
@@ -481,7 +528,6 @@ void MainWindow::deleteImageSlot()
         f.remove();
         this->ui->gallery->removeItemWidget((*i));
         delete (*i);
-        updateGallery();
     }
 }
 
@@ -493,20 +539,22 @@ void MainWindow::add2ExistArticleSlot()
     if(article == "") {
         return;
     }
-    QString path = detailPath+"/"+this->ui->articleOutput->text()+"/";
+    QString path = detailPath+"/"+this->ui->articleOutput->text();
     QDir tmpDir(path);
     QFileInfoList articleFiles = tmpDir.entryInfoList();
-    int imageIndex = articleFiles.size()-2;
+    int imageIndex = articleFiles.size()-4;
     for(i=files.begin();i!=files.end();i++)
     {
         QFile f(galleryPath+"/"+(*i)->text());
         QFileInfo *d = new QFileInfo(f);
         QString h = detailPath+"/"+this->ui->articleOutput->text()+"/"+this->ui->articleOutput->text()+"_"+QString::number(imageIndex)+"."+d->suffix();
         bool b = QFile::copy(galleryPath+"/"+(*i)->text(),h);
-        QFile::remove(galleryPath+"/"+(*i)->text());
+        qDebug()<<"Copying file "+galleryPath+"/"+(*i)->text()+" into "+h+" is "+b;
+//        b = QFile::remove(galleryPath+"/"+(*i)->text());
+//        qDebug()<<"Deleting file "+galleryPath+"/"+(*i)->text()+" is "+b;
         imageIndex++;
     }
-    updateGallery();
+    removeItemFromGallery();
 }
 
 void MainWindow::deleteCarModelSlot()
@@ -588,11 +636,22 @@ void MainWindow::getDetailCategoriesList()
         }
         delete dir4;
     }
-    this->selectedDetailCategory = detailsMap->firstKey();
-    this->selectedDetail = detailsMap->value(selectedDetailCategory)->first();
+    if(!detailsMap->empty()) {
+        this->selectedDetailCategory = detailsMap->firstKey();
+        QStringList* detailList = detailsMap->value(selectedDetailCategory);
+        if(!detailList->empty())
+        this->selectedDetail = detailsMap->value(selectedDetailCategory)->first();
+    }
     delete dir;
     delete dir2;
     delete dir3;
+}
+
+void MainWindow::showErrorWindow(QString errorMessage)
+{
+    QMessageBox messageBox;
+    messageBox.critical(this,"Ошибка",errorMessage);
+    messageBox.setFixedSize(500,200);
 }
 
 void MainWindow::openSettingsWindow()
@@ -610,7 +669,7 @@ void MainWindow::setSettings(QString path, QString galleryPath)
     settingsFile->open(QIODevice::ReadWrite | QFile::Append | QFile::Text);
     QTextStream out(settingsFile);
     out << globalPath << endl;
-    out << galleryPath << endl;
+    out << this->galleryPath << endl;
     this->updateAll();
 }
 
@@ -623,18 +682,27 @@ void MainWindow::updateGallery()
     this->ui->gallery->setUniformItemSizes(true);
     QDir dir(galleryPath);
     QStringList images = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
+
+    UpdatingWindow* uw = new UpdatingWindow(images.size(),"Загрузка");
+    uw->show();
+
     QList<QString>::iterator i;
     QIcon* j;
     for(i=images.begin();i!=images.end();i++)
     {
+        uw->increment();
+        QApplication::processEvents();
         j = new QIcon(galleryPath+"/"+(*i));
         QListWidgetItem* g = new QListWidgetItem((j->pixmap(QSize(120,120))),(*i));
         this->images->append(g);
         g->setSizeHint(QSize(120,120));
         this->ui->gallery->addItem(g);
         delete j;
+
     }
     this->ui->gallery->setUpdatesEnabled(true);
+
+    uw->closeUpdatingWindow();
 }
 
 void MainWindow::updateAll()
@@ -657,6 +725,19 @@ void MainWindow::updateAll()
     this->getDetailCategoriesList();
 }
 
+void MainWindow::removeItemFromGallery()
+{
+    QList<QListWidgetItem*> files = this->ui->gallery->selectedItems();
+    QList<QListWidgetItem*>::Iterator i;
+    for(i=files.begin();i!=files.end();i++)
+    {
+        QFile f(galleryPath+"/"+(*i)->text());
+        f.remove();
+        this->ui->gallery->removeItemWidget((*i));
+        delete (*i);
+    }
+}
+
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     qDebug()<<event->key();
@@ -675,44 +756,46 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             } else {
                 //создаем артикул
                 if(this->ui->articleOutput->text()!="") {
-                QDir dir(detailPath+"/"+this->ui->articleOutput->text());
-                if(!dir.exists())
-                {
-                     dir.mkpath(".");
+                    QDir dir(detailPath+"/"+this->ui->articleOutput->text());
+                    if(!dir.exists())
+                    {
+                         dir.mkpath(".");
+                    } else {
+                        showErrorWindow("Такой артикул уже есть");
+                        this->editDetail = false;
+                        return;
+                    }
+                    QFile file(detailPath+"/"+this->ui->articleOutput->text()+"/"+this->ui->articleOutput->text()+".txt");
+                    if(file.open(QIODevice::ReadWrite | QFile::Append | QFile::Text))
+                    {
+                         QTextStream stream(&file);
+                         stream<<this->ui->makeOutput->text() <<endl;
+                         stream<<this->ui->modelOutput->text() <<endl;
+                         stream<<this->ui->categoryOutput->text() <<endl;
+                         stream<<this->ui->detailOutput->text() <<endl;
+                         stream<<this->ui->articleOutput->text() <<endl;
+                         stream<<this->ui->costOutput->text() <<endl;
+                         stream<<this->ui->originaArtcileOutput->text() <<endl;
+                         stream<<this->ui->placeOutput->text() <<endl;
+                         stream<<this->ui->noteOutput->text() <<endl;
+                    }
+                    QList<QListWidgetItem*> files = this->ui->gallery->selectedItems();
+                    QList<QListWidgetItem*>::Iterator i;
+                    int imageNumber=0;
+                    for(i=files.begin();i!=files.end();i++)
+                    {
+                        QFile f(galleryPath+"/"+(*i)->text());
+                        QFileInfo *d = new QFileInfo(f);
+                        QString h = detailPath+"/"+this->ui->articleOutput->text()+"/"+this->ui->articleOutput->text()+"_"+QString::number(imageNumber)+"."+d->suffix();
+                        bool b = QFile::copy(galleryPath+"/"+(*i)->text(),h);
+                        QFile::remove(galleryPath+"/"+(*i)->text());
+                        this->ui->gallery->removeItemWidget((*i));
+                        delete (*i);
+                        delete d;
+                        imageNumber++;
+                    }
                 }
-                QFile file(detailPath+"/"+this->ui->articleOutput->text()+"/Описание.txt");
-                if(file.open(QIODevice::ReadWrite | QFile::Append | QFile::Text))
-                {
-                     QTextStream stream(&file);
-                     stream<<this->ui->makeOutput->text() <<endl;
-                     stream<<this->ui->modelOutput->text() <<endl;
-                     stream<<this->ui->categoryOutput->text() <<endl;
-                     stream<<this->ui->detailOutput->text() <<endl;
-                     stream<<this->ui->articleOutput->text() <<endl;
-                     stream<<this->ui->costOutput->text() <<endl;
-                     stream<<this->ui->originaArtcileOutput->text() <<endl;
-                     stream<<this->ui->placeOutput->text() <<endl;
-                     stream<<this->ui->noteOutput->text() <<endl;
-                }
-                QList<QListWidgetItem*> files = this->ui->gallery->selectedItems();
-                QList<QListWidgetItem*>::Iterator i;
-                int imageNumber=0;
-                for(i=files.begin();i!=files.end();i++)
-                {
-                    QFile f(galleryPath+"/"+(*i)->text());
-                    QFileInfo *d = new QFileInfo(f);
-                    QString h = detailPath+"/"+this->ui->articleOutput->text()+"/"+this->ui->articleOutput->text()+"_"+QString::number(imageNumber)+"."+d->suffix();
-                    bool b = QFile::copy(galleryPath+"/"+(*i)->text(),h);
-                    QFile::remove(galleryPath+"/"+(*i)->text());
-                    this->ui->gallery->removeItemWidget((*i));
-                    delete (*i);
-                    delete d;
-                    imageNumber++;
-                }
-                }
-
                 this->editDetail = false;
-                this->ui->gallery->repaint();
                 QModelIndex k = fileDetailArticle->index(detailPath+"/"+this->ui->articleOutput->text(),0);
                 this->ui->detailArticle->setCurrentIndex(k);
                 this->updateDetailGallery(detailPath+"/"+this->ui->articleOutput->text());
@@ -724,15 +807,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::clearFileSystems()
 {
     qDebug()<<"in clearFileSystems()";
-
     delete fileModelCarMake;
-
     fileModelCarMake = new QFileSystemModel(this);
-
     fileModelCarMake->setRootPath(globalPath);
     ui->carMake->setModel(fileModelCarMake);
     ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
-
 
     delete fileModelCarModel;
     delete fileModelDetailCategory;
@@ -787,15 +866,15 @@ void MainWindow::updateDetails()
                              if(file.open(QIODevice::ReadWrite | QIODevice::Truncate | QFile::Text))
                              {
                                   QTextStream stream(&file);
-                                  stream<<carMakeDirName<<"\r\n";
-                                  stream<<carModelDirName<<"\r\n";
-                                  stream<<detailCategoryDirName<<"\r\n";
-                                  stream<<detailDirName<<"\r\n";
-                                  stream<<articleDirName<<"\r\n";
-                                  stream<<cost<<"\r\n";
-                                  stream<<originalArticle<<"\r\n";
-                                  stream<<place<<"\r\n";
-                                  stream<<note<<"\r\n";
+                                  stream<<carMakeDirName<<"\n";
+                                  stream<<carModelDirName<<"\n";
+                                  stream<<detailCategoryDirName<<"\n";
+                                  stream<<detailDirName<<"\n";
+                                  stream<<articleDirName<<"\n";
+                                  stream<<cost<<"\n";
+                                  stream<<originalArticle<<"\n";
+                                  stream<<place<<"\n";
+                                  stream<<note<<"\n";
                                   file.close();
                              }
                         } else {

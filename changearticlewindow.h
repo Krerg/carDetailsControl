@@ -9,9 +9,11 @@ class ChangeArticleWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ChangeArticleWindow(QString path, QWidget *parent = 0);
+    explicit ChangeArticleWindow(QString path, QString article, QWidget *parent = 0);
 
 private:
+
+    QString articleName;
 
     QString path;
 
@@ -23,7 +25,7 @@ private:
 
     QLineEdit* detail;
 
-    QLineEdit* article;
+    QLineEdit* articleOutput;
 
     QLineEdit* cost;
 

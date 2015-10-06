@@ -5,14 +5,14 @@
 #include <QDebug>
 
 RenameCarMakeWindow::RenameCarMakeWindow(QString path, QString oldName, QWidget *parent) :
-    QWidget(parent)
+    AbstractRenameWindow(parent)
 {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
-    carMakeNameLabel = new QLabel("Название марки");
-    carMakeNameInput = new QLineEdit();
-    proceedButton = new QPushButton("Переименовать");
+    carMakeNameLabel = new QLabel("Новое название");
+    newName->setText(oldName);
+    proceedButton->setText("Переименовать");
     mainLayout->addWidget(carMakeNameLabel);
-    mainLayout->addWidget(carMakeNameInput);
+    mainLayout->addWidget(newName);
     mainLayout->addWidget(proceedButton);
     this->path = path;
     this->oldName = oldName;
@@ -21,10 +21,11 @@ RenameCarMakeWindow::RenameCarMakeWindow(QString path, QString oldName, QWidget 
 
 void RenameCarMakeWindow::renameCarMakeSlot()
 {
-    QDir* dir = new QDir();
-    QString newName = carMakeNameInput->text();
-    bool sucessful = dir->rename(path+"/"+oldName,path+"/"+newName);
-    qDebug()<<"Renaiming "<<path+"/"+oldName<<" into "<<path+"/"+newName<<" is "<<sucessful;
+    QDir dir;
+    QString newNameText = newName->text();
+    bool sucessful = dir.rename(path+"/"+oldName,path+"/"+newNameText);
+
+    qDebug()<<"Renaiming "<<path+"/"+oldName<<" into "<<path+"/"+newNameText<<" is "<<sucessful;
     if(sucessful) {
         emit updateArticlesInfos();
     }

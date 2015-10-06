@@ -26,7 +26,11 @@ SOURCES += main.cpp\
     excelhandler.cpp \
     changearticlewindow.cpp \
     importfromexcelwindow.cpp \
-    renamecarmakewindow.cpp
+    renamecarmakewindow.cpp \
+    renamedetailcategory.cpp \
+    renamedetailwindow.cpp \
+    updatingwindow.cpp \
+    abstractrenamewindow.cpp
 
 HEADERS  += mainwindow.h \
     createcarmakewindow.h \
@@ -42,7 +46,11 @@ HEADERS  += mainwindow.h \
     excelhandler.h \
     changearticlewindow.h \
     importfromexcelwindow.h \
-    renamecarmakewindow.h
+    renamecarmakewindow.h \
+    renamedetailcategory.h \
+    renamedetailwindow.h \
+    updatingwindow.h \
+    abstractrenamewindow.h
 
 FORMS    += mainwindow.ui
 include(3rdparty\QtXlsxWriter-master\src\xlsx\qtxlsx.pri)

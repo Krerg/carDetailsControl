@@ -3,16 +3,16 @@
 #include <QFile>
 #include <QTextStream>
 
-ChangeArticleWindow::ChangeArticleWindow(QString path, QWidget *parent)
+ChangeArticleWindow::ChangeArticleWindow(QString path, QString article, QWidget *parent)
 {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     this->path = path;
-
+    this->articleName = article;
     this->make = new QLineEdit();
     this->model = new QLineEdit();
     this->category = new QLineEdit();
     this->detail = new QLineEdit();
-    this->article = new QLineEdit();
+    this->articleOutput = new QLineEdit();
     this->cost = new QLineEdit();
     this->originalArticle = new QLineEdit();
     this->place = new QLineEdit();
@@ -22,7 +22,7 @@ ChangeArticleWindow::ChangeArticleWindow(QString path, QWidget *parent)
     mainLayout->addWidget(model);
     mainLayout->addWidget(category);
     mainLayout->addWidget(detail);
-    mainLayout->addWidget(article);
+    mainLayout->addWidget(articleOutput);
     mainLayout->addWidget(cost);
     mainLayout->addWidget(originalArticle);
     mainLayout->addWidget(place);
@@ -31,7 +31,7 @@ ChangeArticleWindow::ChangeArticleWindow(QString path, QWidget *parent)
 
     QObject::connect(proceedButton,SIGNAL(clicked()),this,SLOT(changeArticle()));
 
-    QFile describe(path+"/Описание.txt");
+    QFile describe(path+"/"+article+".txt");
     if (describe.open(QIODevice::ReadOnly))
     {
         QTextStream in(&describe);
@@ -44,7 +44,7 @@ ChangeArticleWindow::ChangeArticleWindow(QString path, QWidget *parent)
         temp = in.readLine();
         this->detail->setText(temp);
         temp = in.readLine();
-        this->article->setText(temp);
+        this->articleOutput->setText(temp);
         temp = in.readLine();
         this->cost->setText(temp);
         temp = in.readLine();
@@ -59,7 +59,7 @@ ChangeArticleWindow::ChangeArticleWindow(QString path, QWidget *parent)
 
 void ChangeArticleWindow::changeArticle()
 {
-    QFile file(path+"/Описание.txt");
+    QFile file(path+"/"+articleName+".txt");
     file.remove();
     if(file.open(QIODevice::ReadWrite | QFile::Append | QFile::Text))
     {
@@ -68,7 +68,7 @@ void ChangeArticleWindow::changeArticle()
          stream<<this->model->text() <<endl;
          stream<<this->category->text() <<endl;
          stream<<this->detail->text() <<endl;
-         stream<<this->article->text() <<endl;
+         stream<<this->articleOutput->text() <<endl;
          stream<<this->cost->text() <<endl;
          stream<<this->originalArticle->text() <<endl;
          stream<<this->place->text() <<endl;

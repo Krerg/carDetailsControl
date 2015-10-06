@@ -5,8 +5,9 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QLabel>
+#include "abstractrenamewindow.h"
 
-class RenameCarMakeWindow : public QWidget
+class RenameCarMakeWindow : public AbstractRenameWindow
 {
     Q_OBJECT
 public:
@@ -15,10 +16,6 @@ public:
 private:
 
     QLabel* carMakeNameLabel;
-
-    QLineEdit* carMakeNameInput;
-
-    QPushButton* proceedButton;
 
     QString path;
 

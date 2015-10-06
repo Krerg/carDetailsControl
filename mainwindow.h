@@ -38,9 +38,17 @@ private:
 
     void updateAll();
 
+    void removeItemFromGallery();
+
     void updateGallery();
 
     void getDetailCategoriesList();
+
+    /**
+     * @brief showErrorWindow показывает окно с ошибкой
+     * @param errorMessage текст ошибки
+     */
+    void showErrorWindow(QString errorMessage = "Возникла ошибка");
 
     Ui::MainWindow *ui;
 
@@ -179,9 +187,11 @@ public slots:
     void deleteCarModelSlot();
 
     void createDetailCategorySlot();
+    void renameDetailCategorySlot();
     void deleteDetailCategorySlot();
 
     void createDetailSlot();
+    void renameDetailSlot();
     void deleteDetailSlot();
 
     void createArticleSlot();

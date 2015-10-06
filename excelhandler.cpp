@@ -42,16 +42,6 @@ void ExcelHandler::exportToExcel()
     excelFile.write("H1","IE_DETAIL_PICTURE");
     excelFile.write("I1","IP_PROP23");
 
-//    excelFile.write("A2","Название запчасти");
-//    excelFile.write("B2","Описание запчасти (примечания)");
-//    excelFile.write("C2","Артикул");
-//    excelFile.write("D2","Марка авто");
-//    excelFile.write("E2","Модель");
-//    excelFile.write("F2","Категория запчасти");
-//    excelFile.write("G2","Цена");
-//    excelFile.write("H2","Основная фотография");
-//    excelFile.write("I2","Дополнительная фотография");
-
     pb->setVisible(true);
     QDir dir(path);
     QDir carModelsDir;
@@ -59,6 +49,7 @@ void ExcelHandler::exportToExcel()
     QDir detailsDir;
     QDir articlesDir;
     QDir imageDir;
+    QString mainImage="";
     QStringList carMarks = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     int count = carMarks.size();
     int currentCount=0;
@@ -79,15 +70,19 @@ void ExcelHandler::exportToExcel()
                         imageDir.setPath(articlesDir.path()+"/"+article);
                         foreach(QString image,imageDir.entryList(QDir::Files | QDir::NoDotAndDotDot)) {
                             qDebug()<<carMark<<" "<<carModel<<" "<<detailCategory<<" "<<detail<<" "<<article<<" "<<image<<endl;
-                            if(image!="Описание.txt") {
+                            if(image!=(article+".txt")) {
+                                if(mainImage=="") {
+                                    mainImage=image;
+                                }
                                 QString j = QString("H%1").arg(currentExcelRow);
-                                excelFile.write(QString("H%1").arg(currentExcelRow),imageDir.path()+"/"+image);
+                                excelFile.write(QString("I%1").arg(currentExcelRow),imageDir.path()+"/"+image);
+                                excelFile.write(QString("H%1").arg(currentExcelRow),imageDir.path()+"/"+mainImage);
                                 excelFile.write(QString("A%1").arg(currentExcelRow),detail);
                                 excelFile.write(QString("D%1").arg(currentExcelRow),carMark);
                                 excelFile.write(QString("E%1").arg(currentExcelRow),carModel);
                                 excelFile.write(QString("F%1").arg(currentExcelRow),detailCategory);
                                 excelFile.write(QString("C%1").arg(currentExcelRow),article);
-                                QFile desc(imageDir.path()+"/Описание.txt");
+                                QFile desc(imageDir.path()+"/"+article+".txt");
                                 if(desc.open(QIODevice::ReadOnly)) {
                                     QTextStream in(&desc);
                                     for(int i=0;i<5;i++) {
@@ -101,6 +96,7 @@ void ExcelHandler::exportToExcel()
                                 currentExcelRow++;
                             }
                         }
+                        mainImage="";
                     }
                 }
             }
