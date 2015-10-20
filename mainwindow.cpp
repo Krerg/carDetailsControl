@@ -505,6 +505,7 @@ void MainWindow::returnImageSlot()
         this->ui->gallery->addItem(g);
         delete j;
 
+        this->ui->articleGallery->removeItemWidget((*i));
         QFile::remove(detailArticlePath+"/"+(*i)->text());
 
 
@@ -542,7 +543,7 @@ void MainWindow::add2ExistArticleSlot()
     QString path = detailPath+"/"+this->ui->articleOutput->text();
     QDir tmpDir(path);
     QFileInfoList articleFiles = tmpDir.entryInfoList();
-    int imageIndex = articleFiles.size()-4;
+    int imageIndex = articleFiles.size()-3;
     for(i=files.begin();i!=files.end();i++)
     {
         QFile f(galleryPath+"/"+(*i)->text());
@@ -555,6 +556,7 @@ void MainWindow::add2ExistArticleSlot()
         imageIndex++;
     }
     removeItemFromGallery();
+    updateDetailGallery(detailArticlePath);
 }
 
 void MainWindow::deleteCarModelSlot()
@@ -807,11 +809,15 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 void MainWindow::clearFileSystems()
 {
     qDebug()<<"in clearFileSystems()";
+
     delete fileModelCarMake;
+
     fileModelCarMake = new QFileSystemModel(this);
+
     fileModelCarMake->setRootPath(globalPath);
     ui->carMake->setModel(fileModelCarMake);
     ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
+
 
     delete fileModelCarModel;
     delete fileModelDetailCategory;

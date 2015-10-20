@@ -4,15 +4,15 @@
 #include <QDebug>
 
 RenameDetailWindow::RenameDetailWindow(QString path, QString selectedCategory, QString oldName, QMap<QString, QStringList*>* map, QWidget *parent) :
-    AbstractRenameWindow(parent), selectedCategory(selectedCategory)
+    QWidget(parent), selectedCategory(selectedCategory)
 {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     detailInfoLabel = new QLabel("Новое название");
-    newName->setText(oldName);
-    proceedButton->setText("Переименовать");
+    detailNameInput = new QLineEdit(oldName);
+    proceedButton = new QPushButton("Переименовать");
 
     mainLayout->addWidget(detailInfoLabel);
-    mainLayout->addWidget(newName);
+    mainLayout->addWidget(detailNameInput);
     mainLayout->addWidget(proceedButton);
 
     this->path = path;
@@ -37,7 +37,7 @@ void RenameDetailWindow::renameDetailSlot()
         foreach (QString dirName2, carModelDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             detailCategoryDir.setPath(carModelDir.path()+"/"+dirName2);
             oldPath = detailCategoryDir.path()+"/"+selectedCategory+"/"+oldName;
-            newPath = detailCategoryDir.path()+"/"+selectedCategory+"/"+newName->text();
+            newPath = detailCategoryDir.path()+"/"+selectedCategory+"/"+detailNameInput->text();
             bool sucessful = tmpDir.rename(oldPath,newPath);
             qDebug()<<"Renaming "+oldPath+" into "+newPath+" is "+sucessful;
         }
@@ -47,13 +47,13 @@ void RenameDetailWindow::renameDetailSlot()
     int count = 0;
     for(i=detail->begin();i!=detail->end();i++) {
         if((*i)==oldName) {
-            detail->replace(count,newName->text());
+            detail->replace(count,detailNameInput->text());
         }
         count++;
     }
     this->hide();
     delete detailInfoLabel;
-    delete newName;
+    delete detailNameInput;
     delete proceedButton;
     emit updateArticlesInfos();
     delete this;

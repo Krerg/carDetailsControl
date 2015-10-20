@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include "updatingwindow.h"
+#include "imageviewer.h"
 
 int main(int argc, char *argv[])
 {
