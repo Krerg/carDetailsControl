@@ -13,12 +13,12 @@ ImageViewer::ImageViewer(QString pathToFile, QWidget *parent) :
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     this->setLayout(mainLayout);
 
-    imageLabel = new QLabel();
+    imageLabel = new QLabel(this);
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     imageLabel->setScaledContents(true);
 
-    scrollArea = new QScrollArea();
+    scrollArea = new QScrollArea(this);
     scrollArea->viewport()->installEventFilter(this);
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);

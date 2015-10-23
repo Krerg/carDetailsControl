@@ -24,6 +24,7 @@
 #include <QProcess>
 #include <QMessageBox>
 #include "excelhandler.h"
+#include "imageviewer.h"
 #include "importfromexcelwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -31,9 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-
-
     this->ui->gallery->setIconSize(QSize(5,5));
     this->selectedDetailCategory = "";
     this->editDetail = false;
@@ -262,19 +260,23 @@ void MainWindow::carDetailChanged(QModelIndex t)
 void MainWindow::openImage(QModelIndex t)
 {
     QString path = t.data().toString();
-    QProcess process;
-    QString fp = galleryPath+"/"+path;
-    process.start("C:/windows/system32/cmd.exe", QStringList() << "/C" << galleryPath+"/"+path);
-    process.waitForFinished(-1);
+//    QProcess process;
+//    QString fp = galleryPath+"/"+path;
+//    process.start("C:/windows/system32/cmd.exe", QStringList() << "/C" << galleryPath+"/"+path);
+//    process.waitForFinished(-1);
+    ImageViewer* iv = new ImageViewer(galleryPath+"/"+path);
+    iv->show();
 }
 
 void MainWindow::openArticleImage(QModelIndex t)
 {
     QString path = t.data().toString();
-    QProcess process;
-    QString fp = detailArticlePath+"/"+path;
-    process.start("C:/windows/system32/cmd.exe", QStringList() << "/C" << detailArticlePath +"/"+path);
-    process.waitForFinished(-1);
+//    QProcess process;
+//    QString fp = detailArticlePath+"/"+path;
+//    process.start("C:/windows/system32/cmd.exe", QStringList() << "/C" << detailArticlePath +"/"+path);
+//    process.waitForFinished(-1);
+    ImageViewer* iv = new ImageViewer(detailArticlePath+"/"+path);
+    iv->show();
 }
 
 void MainWindow::carDetailArticleChanged(QModelIndex t)
