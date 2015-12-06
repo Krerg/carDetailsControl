@@ -9,6 +9,8 @@
 #include <QListWidgetItem>
 #include <QKeyEvent>
 #include <QMap>
+#include <QResizeEvent>
+#include <QCloseEvent>
 
 namespace Ui {
 class MainWindow;
@@ -22,14 +24,35 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    static const QString NEW_STATE;
+
 protected:
     void keyPressEvent(QKeyEvent* event);
 
+    void resizeEvent(QResizeEvent* e);
+
+    void closeEvent(QCloseEvent* e);
 
 private:
 
+    /**
+     * @brief initWindowSize метод инициализации размера окна при старте
+     */
+    void initWindowSize();
+
+    /**
+     * @brief clearFileSystems очистка всех окон отвечающих за просмотр файловых систем
+     */
     void clearFileSystems();
 
+    /**
+     * @brief clearArticleGallery очистка галереи артикула
+     */
+    void clearArticleGallery();
+
+    /**
+     * @brief updateDetails
+     */
     void updateDetails();
 
     void updateDetailGallery(QString detailPath);
@@ -55,6 +78,11 @@ private:
     QString globalPath;
 
     QString galleryPath;
+
+    /**
+     * @brief pathTofiles путь для выгрузки файлов
+     */
+    QString pathTofiles;
 
     QString modelPath;
 
@@ -203,7 +231,7 @@ public slots:
     void add2ExistArticleSlot();
 
     void openSettingsWindow();
-    void setSettings(QString path, QString galleryPath);
+    void setSettings(QString path, QString galleryPath, QString pathTofiles);
 
     void exportToExcelSlot();
     void importFromExcelSlot();

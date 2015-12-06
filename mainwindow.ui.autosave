@@ -49,12 +49,6 @@
        <enum>Qt::Vertical</enum>
       </property>
       <widget class="QSplitter" name="splitter">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Ignored">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="baseSize">
         <size>
          <width>0</width>
@@ -66,25 +60,6 @@
        </property>
        <widget class="QWidget" name="layoutWidget">
         <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>16</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Марки машин&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QListView" name="carMake">
            <property name="enabled">
@@ -98,8 +73,8 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>2000</width>
-             <height>2000</height>
+             <width>500</width>
+             <height>500</height>
             </size>
            </property>
            <property name="baseSize">
@@ -116,6 +91,25 @@
            </property>
            <property name="batchSize">
             <number>50</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>16</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Марки машин&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -158,8 +152,8 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>2000</width>
-             <height>2000</height>
+             <width>500</width>
+             <height>500</height>
             </size>
            </property>
            <property name="baseSize">
@@ -180,9 +174,6 @@
        </widget>
        <widget class="QWidget" name="layoutWidget">
         <layout class="QVBoxLayout" name="verticalLayout_3">
-         <property name="spacing">
-          <number>4</number>
-         </property>
          <item>
           <widget class="QLabel" name="label_3">
            <property name="sizePolicy">
@@ -205,15 +196,15 @@
          <item>
           <widget class="QListView" name="detailCategory">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="maximumSize">
             <size>
-             <width>2000</width>
-             <height>2000</height>
+             <width>500</width>
+             <height>500</height>
             </size>
            </property>
            <property name="baseSize">
@@ -234,9 +225,6 @@
        </widget>
        <widget class="QWidget" name="layoutWidget">
         <layout class="QVBoxLayout" name="verticalLayout_4">
-         <property name="spacing">
-          <number>4</number>
-         </property>
          <item>
           <widget class="QLabel" name="label_4">
            <property name="sizePolicy">
@@ -265,15 +253,15 @@
          <item>
           <widget class="QListView" name="detail">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="maximumSize">
             <size>
-             <width>2000</width>
-             <height>2000</height>
+             <width>500</width>
+             <height>500</height>
             </size>
            </property>
            <property name="baseSize">
@@ -291,9 +279,6 @@
        </widget>
        <widget class="QWidget" name="layoutWidget">
         <layout class="QVBoxLayout" name="verticalLayout_5">
-         <property name="spacing">
-          <number>4</number>
-         </property>
          <item>
           <widget class="QLabel" name="label_13">
            <property name="sizePolicy">
@@ -323,8 +308,8 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>2000</width>
-             <height>2000</height>
+             <width>500</width>
+             <height>500</height>
             </size>
            </property>
            <property name="baseSize">
@@ -343,18 +328,6 @@
       </widget>
       <widget class="QWidget" name="layoutWidget">
        <layout class="QGridLayout" name="gridLayout">
-        <property name="sizeConstraint">
-         <enum>QLayout::SetMaximumSize</enum>
-        </property>
-        <property name="bottomMargin">
-         <number>7</number>
-        </property>
-        <property name="horizontalSpacing">
-         <number>6</number>
-        </property>
-        <property name="verticalSpacing">
-         <number>15</number>
-        </property>
         <item row="0" column="0">
          <widget class="QLabel" name="label_5">
           <property name="sizePolicy">
@@ -370,12 +343,6 @@
         </item>
         <item row="0" column="1">
          <widget class="QLineEdit" name="makeOutput">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>20</height>
-           </size>
-          </property>
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -397,7 +364,7 @@
         <item row="0" column="3">
          <widget class="QLineEdit" name="articleOutput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -405,7 +372,7 @@
           <property name="minimumSize">
            <size>
             <width>296</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
           <property name="readOnly">
@@ -428,12 +395,6 @@
         </item>
         <item row="1" column="1">
          <widget class="QLineEdit" name="modelOutput">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>20</height>
-           </size>
-          </property>
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -455,7 +416,7 @@
         <item row="1" column="3">
          <widget class="QLineEdit" name="costOutput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -463,7 +424,7 @@
           <property name="minimumSize">
            <size>
             <width>296</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
           <property name="readOnly">
@@ -486,12 +447,6 @@
         </item>
         <item row="2" column="1">
          <widget class="QLineEdit" name="categoryOutput">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>20</height>
-           </size>
-          </property>
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -513,7 +468,7 @@
         <item row="2" column="3">
          <widget class="QLineEdit" name="originaArtcileOutput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -521,7 +476,7 @@
           <property name="minimumSize">
            <size>
             <width>296</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
           <property name="readOnly">
@@ -544,12 +499,6 @@
         </item>
         <item row="3" column="1">
          <widget class="QLineEdit" name="detailOutput">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>20</height>
-           </size>
-          </property>
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -571,7 +520,7 @@
         <item row="3" column="3">
          <widget class="QLineEdit" name="placeOutput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -579,7 +528,7 @@
           <property name="minimumSize">
            <size>
             <width>296</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
           <property name="readOnly">
@@ -603,7 +552,7 @@
         <item row="4" column="1" colspan="3">
          <widget class="QLineEdit" name="noteOutput">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -611,7 +560,7 @@
           <property name="minimumSize">
            <size>
             <width>640</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
           <property name="readOnly">
@@ -765,7 +714,6 @@
   <tabstop>modelOutput</tabstop>
   <tabstop>categoryOutput</tabstop>
   <tabstop>detailOutput</tabstop>
-  <tabstop>carMake</tabstop>
   <tabstop>articleOutput</tabstop>
   <tabstop>costOutput</tabstop>
   <tabstop>originaArtcileOutput</tabstop>

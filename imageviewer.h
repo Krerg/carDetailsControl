@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QWheelEvent>
+#include <math.h>
 
 /**
  * @brief The ImageViewer class кастомный просмотрщик изображений
@@ -21,6 +22,11 @@ public:
     explicit ImageViewer(QString pathToFile, QWidget *parent = 0);
 
 private:
+
+    /**
+     * @brief k коэффициент
+     */
+    double k = sqrt((double)2/3);
 
     /**
      * @brief imageLabel лэйбл для вывода изображения.
@@ -41,6 +47,13 @@ private:
     void scaleImage(double scale);
 
     /**
+     * @brief scaleImage изменяет масштаб картинки.
+     * @param w
+     * @param h
+     */
+    void scaleImage(int w, int h);
+
+    /**
      * @brief scaleFactor текущий коэффициент масштаба.
      */
     double scaleFactor=1;
@@ -53,6 +66,18 @@ private:
      */
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
+    /**
+     * @brief windowWidth ширина окна (при изменении запоминается)
+     */
+    static int windowWidth;
+
+    /**
+     * @brief wondowHeight высота окна (при изменении запоминается)
+     */
+    static int windowHeight;
+
+    ~ImageViewer();
+
 protected:
 
     /**
@@ -62,6 +87,11 @@ protected:
     void wheelEvent(QWheelEvent* event);
 
     bool eventFilter(QObject *, QEvent *);
+
+    /**
+     * @brief resizeEvent ивент изменения размера окна
+     */
+    void resizeEvent(QResizeEvent *);
 
 signals:
 

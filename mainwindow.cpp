@@ -27,11 +27,14 @@
 #include "imageviewer.h"
 #include "importfromexcelwindow.h"
 
+const QString MainWindow::NEW_STATE = "NEW";
+
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->setAttribute( Qt::WA_DeleteOnClose );
     this->ui->gallery->setIconSize(QSize(5,5));
     this->selectedDetailCategory = "";
     this->editDetail = false;
@@ -40,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->details = new QTreeView();
     this->images = new QList<QListWidgetItem*>();
     this->articleImages = new QList<QListWidgetItem*>();
+
+    initWindowSize();
 
     menuBar = new QMenuBar(this);
     this->service = new QMenu("Сервис");
@@ -178,6 +183,7 @@ MainWindow::MainWindow(QWidget *parent) :
         QTextStream in(settingsFile);
         this->globalPath = in.readLine();
         this->galleryPath = in.readLine();
+        this->pathTofiles = in.readLine();
     } else {
         this->globalPath = "c:/carShop/";
         this->galleryPath = "c:/gallery/";
@@ -194,7 +200,7 @@ MainWindow::MainWindow(QWidget *parent) :
         out << globalPath << endl;
         out << galleryPath << endl;
     }
-    this->setSettings(globalPath,galleryPath);
+    this->setSettings(globalPath,galleryPath,pathTofiles);
 }
 
 void MainWindow::carMakeChanged(QModelIndex t)
@@ -210,7 +216,7 @@ void MainWindow::carMakeChanged(QModelIndex t)
     this->ui->carModel->setCurrentIndex(k);
     carModelChanged(k);
     }
-    qDebug()<<selectedDetailCategory;
+    //qDebug()<<selectedDetailCategory;
 }
 
 void MainWindow::carModelChanged(QModelIndex t)
@@ -227,14 +233,14 @@ void MainWindow::carModelChanged(QModelIndex t)
         selectedDetailtmp = selectedDetail;
         carDetailCategoryChanged(tmpIndex);
     } else {
-
+        clearArticleGallery();
     }
     if(selectedDetailtmp!="") {
         QModelIndex tmpIndex = fileDetail->index(detailCategoryPath+"/"+selectedDetailtmp,0);
         ui->detail->setCurrentIndex(tmpIndex);
         carDetailChanged(tmpIndex);
     } else {
-
+        clearArticleGallery();
     }
 }
 
@@ -247,6 +253,7 @@ void MainWindow::carDetailCategoryChanged(QModelIndex t)
     selectedDetail="";
     delete fileDetailArticle;
     fileDetailArticle = new QFileSystemModel(this);
+    clearArticleGallery();
 }
 
 void MainWindow::carDetailChanged(QModelIndex t)
@@ -255,15 +262,12 @@ void MainWindow::carDetailChanged(QModelIndex t)
     ui->detailArticle->setModel(fileDetailArticle);
     this->selectedDetail = fileDetail->fileInfo(t).fileName();
     ui->detailArticle->setRootIndex(fileDetailArticle->setRootPath(detailPath));
+    clearArticleGallery();
 }
 
 void MainWindow::openImage(QModelIndex t)
 {
     QString path = t.data().toString();
-//    QProcess process;
-//    QString fp = galleryPath+"/"+path;
-//    process.start("C:/windows/system32/cmd.exe", QStringList() << "/C" << galleryPath+"/"+path);
-//    process.waitForFinished(-1);
     ImageViewer* iv = new ImageViewer(galleryPath+"/"+path);
     iv->show();
 }
@@ -271,12 +275,17 @@ void MainWindow::openImage(QModelIndex t)
 void MainWindow::openArticleImage(QModelIndex t)
 {
     QString path = t.data().toString();
-//    QProcess process;
-//    QString fp = detailArticlePath+"/"+path;
-//    process.start("C:/windows/system32/cmd.exe", QStringList() << "/C" << detailArticlePath +"/"+path);
-//    process.waitForFinished(-1);
-    ImageViewer* iv = new ImageViewer(detailArticlePath+"/"+path);
-    iv->show();
+    QFile openFile(detailArticlePath+"/"+path);
+    QFileInfo fileInfo(openFile);
+    if(fileInfo.suffix()!="txt") {
+        ImageViewer* iv = new ImageViewer(detailArticlePath+"/"+path);
+        iv->show();
+    } else {
+        QProcess process;
+        QString fp = detailArticlePath+"/"+path;
+        process.start("C:/windows/system32/cmd.exe", QStringList() << "/C" << detailArticlePath +"/"+path);
+        process.waitForFinished(-1);
+    }
 }
 
 void MainWindow::carDetailArticleChanged(QModelIndex t)
@@ -553,8 +562,6 @@ void MainWindow::add2ExistArticleSlot()
         QString h = detailPath+"/"+this->ui->articleOutput->text()+"/"+this->ui->articleOutput->text()+"_"+QString::number(imageIndex)+"."+d->suffix();
         bool b = QFile::copy(galleryPath+"/"+(*i)->text(),h);
         qDebug()<<"Copying file "+galleryPath+"/"+(*i)->text()+" into "+h+" is "+b;
-//        b = QFile::remove(galleryPath+"/"+(*i)->text());
-//        qDebug()<<"Deleting file "+galleryPath+"/"+(*i)->text()+" is "+b;
         imageIndex++;
     }
     removeItemFromGallery();
@@ -594,6 +601,10 @@ void MainWindow::deleteDetailSlot()
 
 MainWindow::~MainWindow()
 {
+    delete detailsMap;
+    delete details;
+    delete images;
+    delete articleImages;
     delete ui;
 }
 
@@ -660,21 +671,25 @@ void MainWindow::showErrorWindow(QString errorMessage)
 
 void MainWindow::openSettingsWindow()
 {
-    SettingsWindow* w = new SettingsWindow(globalPath,galleryPath);
-    QObject::connect(w,SIGNAL(setSettings(QString,QString)),this,SLOT(setSettings(QString,QString)));
+    SettingsWindow* w = new SettingsWindow(globalPath,galleryPath,pathTofiles);
+    QObject::connect(w,SIGNAL(setSettings(QString,QString,QString)),this,SLOT(setSettings(QString,QString,QString)));
     w->show();
 }
 
-void MainWindow::setSettings(QString path, QString galleryPath)
+void MainWindow::setSettings(QString path, QString galleryPath, QString pathToFiles)
 {
     this->globalPath = path;
     this->galleryPath = galleryPath;
+    this->pathTofiles = pathToFiles;
     this->settingsFile->remove();
     settingsFile->open(QIODevice::ReadWrite | QFile::Append | QFile::Text);
     QTextStream out(settingsFile);
-    out << globalPath << endl;
+    out << this->globalPath << endl;
     out << this->galleryPath << endl;
+    out << this->pathTofiles << endl;
     this->updateAll();
+    out.flush();
+    settingsFile->close();
 }
 
 void MainWindow::updateGallery()
@@ -782,6 +797,11 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                          stream<<this->ui->originaArtcileOutput->text() <<endl;
                          stream<<this->ui->placeOutput->text() <<endl;
                          stream<<this->ui->noteOutput->text() <<endl;
+                         stream<<NEW_STATE<<endl;
+                         file.close();
+                    } else {
+                        qDebug()<<"Невозможно открыть выходной файл";
+                        return;
                     }
                     QList<QListWidgetItem*> files = this->ui->gallery->selectedItems();
                     QList<QListWidgetItem*>::Iterator i;
@@ -800,11 +820,57 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
                     }
                 }
                 this->editDetail = false;
+
+                //установка курсора но созданную деталь
                 QModelIndex k = fileDetailArticle->index(detailPath+"/"+this->ui->articleOutput->text(),0);
                 this->ui->detailArticle->setCurrentIndex(k);
                 this->updateDetailGallery(detailPath+"/"+this->ui->articleOutput->text());
+                this->detailArticlePath = detailPath+"/"+this->ui->articleOutput->text();
             }
         }
+    }
+}
+
+void MainWindow::resizeEvent(QResizeEvent *e)
+{
+
+}
+
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+    QFile sizeFile("size.txt");
+    if(sizeFile.exists())
+    {
+       sizeFile.remove();
+    }
+    sizeFile.open(QIODevice::ReadWrite | QFile::Append | QFile::Text);
+    QTextStream out(&sizeFile);
+    out<<this->height()<<endl;
+    out<<this->width()<<endl;
+    e->accept();
+}
+
+void MainWindow::initWindowSize()
+{
+    QFile sizeFile("size.txt");
+    if(sizeFile.exists()) {
+        sizeFile.open(QIODevice::ReadWrite |  QFile::Text);
+        QTextStream out(&sizeFile);
+        bool isNumber;
+        QString height = out.readLine();
+        QString width = out.readLine();
+        int intHeight = height.toInt(&isNumber);
+        if(!isNumber) {
+            return;
+        }
+        int intWidth = width.toInt(&isNumber);
+        if(!isNumber) {
+            return;
+        }
+        this->resize(intWidth,intHeight);
+        sizeFile.close();
+    } else {
+        return;
     }
 }
 
@@ -831,6 +897,11 @@ void MainWindow::clearFileSystems()
     fileDetail = new QFileSystemModel(this);
     fileDetailArticle = new QFileSystemModel(this);
 
+}
+
+void MainWindow::clearArticleGallery()
+{
+    this->ui->articleGallery->clear();
 }
 
 void MainWindow::updateDetails()
@@ -930,7 +1001,7 @@ void MainWindow::clearOutput()
 
 void MainWindow::exportToExcelSlot()
 {
-    ExcelHandler* excleHandlerWindow = new ExcelHandler(this->globalPath);
+    ExcelHandler* excleHandlerWindow = new ExcelHandler(this->globalPath,this->pathTofiles);
     excleHandlerWindow->show();
 }
 

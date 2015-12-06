@@ -3,15 +3,19 @@
 #include <QDir>
 #include <QDebug>
 #include "3rdparty/QtXlsxWriter-master/src/xlsx/xlsxdocument.h"
+#include <QApplication>
+#include "mainwindow.h"
 
-ExcelHandler::ExcelHandler(QString path, QWidget *parent) :
-    QWidget(parent)
+ExcelHandler::ExcelHandler(QString path, QString pathToFiles, QWidget *parent) :
+    QWidget(parent),pathToFiles(pathToFiles)
 {
     this->path = path;
     QVBoxLayout* v = new QVBoxLayout(this);
     this->outputFileLabel = new QLabel("Выходной файл");
     this->outputExcelFile = new QLineEdit("output.xlsx");
     this->confirmButton = new QPushButton("Экспорт");
+    this->exportNewButton = new QPushButton("Экспорт новых артикулов");
+
     this->pb = new QProgressBar();
     pb->setValue(0);
     pb->setMinimum(0);
@@ -20,11 +24,43 @@ ExcelHandler::ExcelHandler(QString path, QWidget *parent) :
     v->addWidget(outputFileLabel);
     v->addWidget(outputExcelFile);
     v->addWidget(confirmButton);
+    v->addWidget(exportNewButton);
     v->addWidget(pb);
-    QObject::connect(this->confirmButton,SIGNAL(clicked()),this,SLOT(exportToExcel()));
+    QObject::connect(this->confirmButton,SIGNAL(clicked()),this,SLOT(exportAllToExcel()));
+    QObject::connect(this->exportNewButton,SIGNAL(clicked()),this,SLOT(exportNewToExcel()));
+
 }
 
-void ExcelHandler::exportToExcel()
+bool ExcelHandler::checkState(QString path)
+{
+    QFile file(path);
+    if(file.open(QIODevice::ReadWrite |  QFile::Text))
+    {
+         QTextStream stream(&file);
+         QString state;
+         state = stream.readLine();
+         state = stream.readLine();
+         state = stream.readLine();
+         state = stream.readLine();
+         state = stream.readLine();
+         state = stream.readLine();
+         state = stream.readLine();
+         state = stream.readLine();
+         state = stream.readLine();
+         state = stream.readLine();
+          file.close();
+         if(state.compare(MainWindow::NEW_STATE)) {
+            return true;
+         } else {
+             return false;
+         }
+    } else {
+        qDebug()<<"Невозможно открыть выходной файл";
+        return false;
+    }
+}
+
+void ExcelHandler::exportAllToExcel()
 {
     QFile outputFile(outputExcelFile->text());
     if(outputFile.exists()) {
@@ -41,6 +77,12 @@ void ExcelHandler::exportToExcel()
     excelFile.write("G1","CV_PRICE_1");
     excelFile.write("H1","IE_DETAIL_PICTURE");
     excelFile.write("I1","IP_PROP23");
+
+    //проверяем папку для выгрузки
+    QDir imageOutDir(pathToFiles);
+    if(!imageOutDir.exists()) {
+        imageOutDir.mkpath(".");
+    }
 
     pb->setVisible(true);
     QDir dir(path);
@@ -68,13 +110,17 @@ void ExcelHandler::exportToExcel()
                     articlesDir.setPath(detailsDir.path()+"/"+detail);
                     foreach(QString article, articlesDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
                         imageDir.setPath(articlesDir.path()+"/"+article);
+                        if(!exportAll && checkState(imageDir.path()+"/"+article+".txt")) {
+                            continue;
+                        }
                         foreach(QString image,imageDir.entryList(QDir::Files | QDir::NoDotAndDotDot)) {
-                            qDebug()<<carMark<<" "<<carModel<<" "<<detailCategory<<" "<<detail<<" "<<article<<" "<<image<<endl;
                             if(image!=(article+".txt")) {
                                 if(mainImage=="") {
                                     mainImage=image;
+                                    QFile::copy(imageDir.path()+"/"+mainImage,imageOutDir.path()+"/"+mainImage);
+                                    continue;
                                 }
-                                QString j = QString("H%1").arg(currentExcelRow);
+
                                 excelFile.write(QString("I%1").arg(currentExcelRow),imageDir.path()+"/"+image);
                                 excelFile.write(QString("H%1").arg(currentExcelRow),imageDir.path()+"/"+mainImage);
                                 excelFile.write(QString("A%1").arg(currentExcelRow),detail);
@@ -93,8 +139,10 @@ void ExcelHandler::exportToExcel()
                                     in.readLine();
                                     excelFile.write(QString("B%1").arg(currentExcelRow),in.readLine());
                                 }
+                                QFile::copy(imageDir.path()+"/"+image,imageOutDir.path()+"/"+image);
                                 currentExcelRow++;
                             }
+                            QApplication::processEvents();
                         }
                         mainImage="";
                     }
@@ -105,4 +153,10 @@ void ExcelHandler::exportToExcel()
     excelFile.save();
     this->close();
     delete this;
+}
+
+void ExcelHandler::exportNewToExcel()
+{
+    exportAll = false;
+    exportAllToExcel();
 }
