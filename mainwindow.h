@@ -65,6 +65,8 @@ private:
 
     void updateGallery();
 
+    void saveSizes(QTextStream* stream);
+
     void getDetailCategoriesList();
 
     /**

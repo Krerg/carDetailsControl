@@ -605,7 +605,6 @@ MainWindow::~MainWindow()
     delete details;
     delete images;
     delete articleImages;
-    delete ui;
 }
 
 void MainWindow::getDetailCategoriesList()
@@ -722,6 +721,24 @@ void MainWindow::updateGallery()
     this->ui->gallery->setUpdatesEnabled(true);
 
     uw->closeUpdatingWindow();
+}
+
+void MainWindow::saveSizes(QTextStream* stream)
+{
+    QList<int> fileSystemWidgets = this->ui->splitter->sizes();
+    foreach (int size, fileSystemWidgets) {
+        *stream<<size<<endl;
+    }
+
+    fileSystemWidgets = this->ui->splitter_2->sizes();
+    foreach (int size, fileSystemWidgets) {
+        *stream<<size<<endl;
+    }
+
+    fileSystemWidgets = this->ui->splitter_3->sizes();
+    foreach (int size, fileSystemWidgets) {
+        *stream<<size<<endl;
+    }
 }
 
 void MainWindow::updateAll()
@@ -847,6 +864,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
     QTextStream out(&sizeFile);
     out<<this->height()<<endl;
     out<<this->width()<<endl;
+    saveSizes(&out);
+    sizeFile.close();
     e->accept();
 }
 
@@ -868,11 +887,35 @@ void MainWindow::initWindowSize()
             return;
         }
         this->resize(intWidth,intHeight);
+
+        int i;
+        QString widgetSize;
+        QList<int> fileSystemWidgetsSize;
+        for(i = 0;i<5;i++) {
+            widgetSize = out.readLine();
+            fileSystemWidgetsSize.append(widgetSize.toInt());
+        }
+        this->ui->splitter->setSizes(fileSystemWidgetsSize);
+
+        QList<int> leftPanelWidgetsSize;
+        for(i = 0;i<3;i++) {
+            widgetSize = out.readLine();
+            leftPanelWidgetsSize.append(widgetSize.toInt());
+        }
+        this->ui->splitter_2->setSizes(leftPanelWidgetsSize);
+        sizeFile.close();
+
+        QList<int> leftAndRightPanelsSize;
+        for(i = 0;i<3;i++) {
+            widgetSize = out.readLine();
+            leftAndRightPanelsSize.append(widgetSize.toInt());
+        }
+        this->ui->splitter_3->setSizes(leftAndRightPanelsSize);
         sizeFile.close();
     } else {
         return;
     }
-}
+ }
 
 void MainWindow::clearFileSystems()
 {

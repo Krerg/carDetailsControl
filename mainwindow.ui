@@ -673,7 +673,7 @@
       </widget>
      </widget>
      <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="verticalLayout_6">
+      <layout class="QVBoxLayout" name="mainGalleryLayout">
        <item>
         <widget class="QLabel" name="label_14">
          <property name="sizePolicy">
