@@ -36,6 +36,11 @@ protected:
 private:
 
     /**
+     * @brief applySavedValues установка сохраненных значений
+     */
+    void applySavedValues();
+
+    /**
      * @brief initWindowSize метод инициализации размера окна при старте
      */
     void initWindowSize();
@@ -66,6 +71,13 @@ private:
     void updateGallery();
 
     void saveSizes(QTextStream* stream);
+
+    /**
+     * @brief saveSelectedValues сохранение выбранных значений
+     */
+    void saveSelectedValues();
+
+    int saveSelectedValue(QModelIndexList list, QTextStream* out);
 
     void getDetailCategoriesList();
 
@@ -180,6 +192,11 @@ private:
 
     QList<QListWidgetItem*>* articleImages;
 
+    /**
+     * @brief imageSize размер изображений
+     */
+    int imageSize;
+
     QString selectedDetailCategory;
 
     QString selectedDetail;
@@ -189,6 +206,10 @@ private:
      */
     QFile* settingsFile;
 
+    /**
+     * @brief savedIndexes файл где лежат сохраненные значения выбранных деталей
+     */
+    QFile* savedIndexes;
 
 public slots:
     void carMakeChanged(QModelIndex);
@@ -233,7 +254,7 @@ public slots:
     void add2ExistArticleSlot();
 
     void openSettingsWindow();
-    void setSettings(QString path, QString galleryPath, QString pathTofiles);
+    void setSettings(QString path, QString galleryPath, QString pathTofiles, int imageSize);
 
     void exportToExcelSlot();
     void importFromExcelSlot();

@@ -184,9 +184,11 @@ MainWindow::MainWindow(QWidget *parent) :
         this->globalPath = in.readLine();
         this->galleryPath = in.readLine();
         this->pathTofiles = in.readLine();
+        this->imageSize = in.readLine().toInt();
     } else {
         this->globalPath = "c:/carShop/";
         this->galleryPath = "c:/gallery/";
+        this->imageSize = 120;
         QDir globalPathDir(globalPath);
         if (!globalPathDir.exists()) {
             globalPathDir.mkpath(".");
@@ -200,7 +202,15 @@ MainWindow::MainWindow(QWidget *parent) :
         out << globalPath << endl;
         out << galleryPath << endl;
     }
-    this->setSettings(globalPath,galleryPath,pathTofiles);
+    this->setSettings(globalPath,galleryPath,pathTofiles,imageSize);
+
+    //Установка сохраненных значений
+    this->savedIndexes = new QFile("savedValues.txt");
+    if(savedIndexes->exists()) {
+        applySavedValues();
+    } else {
+        this->savedIndexes->open(QIODevice::ReadWrite | QFile::Append | QFile::Text);
+    }
 }
 
 void MainWindow::carMakeChanged(QModelIndex t)
@@ -211,12 +221,11 @@ void MainWindow::carMakeChanged(QModelIndex t)
     QDir tmpDir(sPath);
     QFileInfoList models = tmpDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
     if(models.size()>0) {
-    QString firstFile = models.first().fileName();
-    QModelIndex k = fileModelCarModel->index(sPath+"/"+firstFile,0);
-    this->ui->carModel->setCurrentIndex(k);
-    carModelChanged(k);
+        QString firstFile = models.first().fileName();
+        QModelIndex k = fileModelCarModel->index(sPath+"/"+firstFile,0);
+        this->ui->carModel->setCurrentIndex(k);
+        carModelChanged(k);
     }
-    //qDebug()<<selectedDetailCategory;
 }
 
 void MainWindow::carModelChanged(QModelIndex t)
@@ -263,6 +272,14 @@ void MainWindow::carDetailChanged(QModelIndex t)
     this->selectedDetail = fileDetail->fileInfo(t).fileName();
     ui->detailArticle->setRootIndex(fileDetailArticle->setRootPath(detailPath));
     clearArticleGallery();
+    QDir selectedDetailDir(detailPath);
+    QFileInfoList selectedDetailInfoList = selectedDetailDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+    if(selectedDetailInfoList.size() != 0) {
+        QString articlePath = detailPath +"/" + selectedDetailInfoList.first().fileName();
+        QModelIndex tmpIndex = fileDetailArticle->index(articlePath,0);
+        ui->detailArticle->setCurrentIndex(tmpIndex);
+        carDetailArticleChanged(tmpIndex);
+    }
 }
 
 void MainWindow::openImage(QModelIndex t)
@@ -554,7 +571,11 @@ void MainWindow::add2ExistArticleSlot()
     QString path = detailPath+"/"+this->ui->articleOutput->text();
     QDir tmpDir(path);
     QFileInfoList articleFiles = tmpDir.entryInfoList();
-    int imageIndex = articleFiles.size()-3;
+    QString lastFileName = articleFiles.last().fileName();
+    QRegExp rx("(\\_|\\.)");
+    QStringList splittedFileName = lastFileName.split(rx);
+    int imageIndex = splittedFileName.at(1).toInt();
+    imageIndex++;
     for(i=files.begin();i!=files.end();i++)
     {
         QFile f(galleryPath+"/"+(*i)->text());
@@ -670,22 +691,24 @@ void MainWindow::showErrorWindow(QString errorMessage)
 
 void MainWindow::openSettingsWindow()
 {
-    SettingsWindow* w = new SettingsWindow(globalPath,galleryPath,pathTofiles);
-    QObject::connect(w,SIGNAL(setSettings(QString,QString,QString)),this,SLOT(setSettings(QString,QString,QString)));
+    SettingsWindow* w = new SettingsWindow(globalPath,galleryPath,pathTofiles, imageSize);
+    QObject::connect(w,SIGNAL(setSettings(QString,QString,QString,int)),this,SLOT(setSettings(QString,QString,QString,int)));
     w->show();
 }
 
-void MainWindow::setSettings(QString path, QString galleryPath, QString pathToFiles)
+void MainWindow::setSettings(QString path, QString galleryPath, QString pathToFiles, int imageSize)
 {
     this->globalPath = path;
     this->galleryPath = galleryPath;
     this->pathTofiles = pathToFiles;
+    this->imageSize = imageSize;
     this->settingsFile->remove();
     settingsFile->open(QIODevice::ReadWrite | QFile::Append | QFile::Text);
     QTextStream out(settingsFile);
     out << this->globalPath << endl;
     out << this->galleryPath << endl;
     out << this->pathTofiles << endl;
+    out << this->imageSize << endl;
     this->updateAll();
     out.flush();
     settingsFile->close();
@@ -738,6 +761,39 @@ void MainWindow::saveSizes(QTextStream* stream)
     fileSystemWidgets = this->ui->splitter_3->sizes();
     foreach (int size, fileSystemWidgets) {
         *stream<<size<<endl;
+    }
+}
+
+void MainWindow::saveSelectedValues()
+{
+    if(savedIndexes->isOpen()) {
+
+        savedIndexes->close();
+        savedIndexes->remove();
+        savedIndexes->open(QIODevice::ReadWrite | QFile::Append | QFile::Text);
+
+        QTextStream out(savedIndexes);
+        if(this->ui->carMake->selectionModel()!=NULL)
+            saveSelectedValue(this->ui->carMake->selectionModel()->selectedIndexes(),&out);
+        if(this->ui->carModel->selectionModel()!=NULL)
+            saveSelectedValue(this->ui->carModel->selectionModel()->selectedIndexes(),&out);
+        if(this->ui->detailCategory->selectionModel()!=NULL)
+            saveSelectedValue(this->ui->detailCategory->selectionModel()->selectedIndexes(),&out);
+        if(this->ui->detail->selectionModel()!=NULL)
+            saveSelectedValue(this->ui->detail->selectionModel()->selectedIndexes(),&out);
+        if(this->ui->detailArticle->selectionModel()!=NULL)
+            saveSelectedValue(this->ui->detailArticle->selectionModel()->selectedIndexes(),&out);
+        savedIndexes->close();
+    }
+}
+
+int MainWindow::saveSelectedValue(QModelIndexList list, QTextStream *out)
+{
+    if(list.size()!=0) {
+        *out<<list.first().data().toString()<<endl;
+        return 1;
+    } else {
+        return 0;
     }
 }
 
@@ -866,7 +922,49 @@ void MainWindow::closeEvent(QCloseEvent *e)
     out<<this->width()<<endl;
     saveSizes(&out);
     sizeFile.close();
+    saveSelectedValues();
     e->accept();
+    savedIndexes->close();
+}
+
+void MainWindow::applySavedValues()
+{
+    this->savedIndexes->open(QIODevice::ReadWrite |  QFile::Text);
+    QTextStream stream(savedIndexes);
+    if(!stream.atEnd()) {
+        QString savedCarMake = stream.readLine();
+        QModelIndex carMakeIndex = fileModelCarMake->index(globalPath+"/"+savedCarMake,0);
+        this->ui->carMake->setCurrentIndex(carMakeIndex);
+        carMakeChanged(fileModelCarMake->index(globalPath+"/"+savedCarMake,0));
+    }
+
+    if(!stream.atEnd()) {
+        QString savedCarModel = stream.readLine();
+        QModelIndex savedCarModelIndex = fileModelCarModel->index(sPath+"/"+savedCarModel,0);
+        this->ui->carModel->setCurrentIndex(savedCarModelIndex);
+        carModelChanged(savedCarModelIndex);
+    }
+
+    if(!stream.atEnd()) {
+        QString savedDetailCategory = stream.readLine();
+        QModelIndex savedDetailCategoryIndex = fileModelDetailCategory->index(modelPath+"/"+savedDetailCategory,0);
+        this->ui->detailCategory->setCurrentIndex(savedDetailCategoryIndex);
+        carDetailCategoryChanged(savedDetailCategoryIndex);
+    }
+
+    if(!stream.atEnd()) {
+        QString savedDetail = stream.readLine();
+        QModelIndex savedDetailIndex = fileDetail->index(detailCategoryPath+"/"+savedDetail,0);
+        this->ui->detail->setCurrentIndex(savedDetailIndex);
+        carDetailChanged(savedDetailIndex);
+    }
+
+    if(!stream.atEnd()) {
+        QString savedArticle = stream.readLine();
+        QModelIndex articleModelIndex = fileDetailArticle->index(detailPath+"/"+savedArticle,0);
+        ui->detailArticle->setCurrentIndex(articleModelIndex);
+        carDetailArticleChanged(articleModelIndex);
+    }
 }
 
 void MainWindow::initWindowSize()
@@ -961,6 +1059,9 @@ void MainWindow::updateDetails()
     QString note;
 
     QDir root(globalPath);
+    UpdatingWindow* uw = new UpdatingWindow(root.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot).size(),"Обновление информации");
+    uw->show();
+    QApplication::processEvents();
     foreach(QString carMakeDirName,root.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         QDir carMakeTempDir(globalPath+"/"+carMakeDirName);
         foreach(QString carModelDirName, carMakeTempDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
@@ -1006,7 +1107,10 @@ void MainWindow::updateDetails()
                 }
             }
         }
+        uw->increment();
+        QApplication::processEvents();
     }
+    uw->closeUpdatingWindow();
 }
 
 void MainWindow::updateDetailGallery(QString detailPath)
