@@ -1,4 +1,4 @@
-#include "imageviewer.h"
+﻿#include "imageviewer.h"
 #include <QImage>
 #include <QMessageBox>
 #include <QLayout>
@@ -30,6 +30,9 @@ ImageViewer::ImageViewer(QString pathToFile, QWidget *parent) :
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);
     //this->setCentralWidget(scrollArea);
+
+    imgOriginalWidth = 0;
+    imgOriginalHeight = 0;
 
     layout()->addWidget(scrollArea);
 
@@ -63,7 +66,12 @@ bool ImageViewer::open(QString pathToFile)
 
     imageLabel->setPixmap(QPixmap::fromImage(image));
     imageLabel->adjustSize();
+
+    imgOriginalHeight = image.height();
+    imgOriginalWidth = image.width();
+
     imageLabel->resize(this->windowWidth*k-24, this->windowHeight*k-24);
+
 }
 
 void ImageViewer::scaleImage(double scale)
@@ -72,7 +80,9 @@ void ImageViewer::scaleImage(double scale)
        scale = 2+scale;
     }
     scaleFactor*=scale;
-    if(scale*imageLabel->width()<windowWidth) {
+    if(scale*imageLabel->width()<windowWidth ||
+       scale*imageLabel->width() > imgOriginalWidth||
+       scale*imageLabel->height() > imgOriginalHeight) {
         return;
     }
     imageLabel->resize(scale*imageLabel->width(),scale*imageLabel->height());
@@ -85,6 +95,15 @@ void ImageViewer::scaleImage(int w, int h)
         return;
     }
     imageLabel->resize(w,h);
+}
+
+void ImageViewer::scaleImageToWindowSize()
+{
+   double ratio = double(imgOriginalWidth)/imgOriginalHeight;
+   if(double(windowWidth)/windowHeight - ratio >= 0 )
+      imageLabel->resize((windowHeight-24)*ratio,windowHeight-24);
+   else
+      imageLabel->resize(windowWidth-24,double(windowWidth-24)/ratio);
 }
 
 void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
@@ -121,6 +140,13 @@ void ImageViewer::resizeEvent(QResizeEvent *e)
 {
     this->windowHeight = this->height();
     this->windowWidth = this->width();
+}
+
+void ImageViewer::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Space) {
+        scaleImageToWindowSize();
+    }
 }
 
 void ImageViewer::zoomIn()

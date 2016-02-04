@@ -1,4 +1,4 @@
-#ifndef IMAGEVIEWER_H
+﻿#ifndef IMAGEVIEWER_H
 #define IMAGEVIEWER_H
 
 #include <QWidget>
@@ -34,6 +34,18 @@ private:
     QLabel* imageLabel;
 
     /**
+     * @brief imgOriginalWidth изначальная ширина изображения.
+     */
+
+    int imgOriginalWidth;
+
+    /**
+     * @brief imgOriginalHeight изначальная высота изображения.
+     */
+
+    int imgOriginalHeight;
+
+    /**
      * @brief scrollArea для прокручивания изображения.
      */
     QScrollArea* scrollArea;
@@ -52,6 +64,12 @@ private:
      * @param h
      */
     void scaleImage(int w, int h);
+
+    /**
+     * @brief scaleImageToWindowSize изменяет масштаб картинки до размеров окна.
+     */
+
+    void scaleImageToWindowSize();
 
     /**
      * @brief scaleFactor текущий коэффициент масштаба.
@@ -92,6 +110,11 @@ protected:
      * @brief resizeEvent ивент изменения размера окна
      */
     void resizeEvent(QResizeEvent *);
+
+    /**
+     * @brief keyPressEvent ивент изменения нажатия клавиши
+     */
+    void keyPressEvent(QKeyEvent* event);
 
 signals:
 
