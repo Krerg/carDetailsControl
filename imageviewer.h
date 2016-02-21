@@ -24,9 +24,18 @@ public:
 private:
 
     /**
+     * @brief прямоугольник, сохраняющий положение и размеры окна
+     */
+
+    static QRect windowRect;
+    /**
+     * @brief флаг первого запуска
+     */
+    static bool firstStart;
+
+    /**
      * @brief k коэффициент
      */
-    double k = sqrt((double)2/3);
 
     /**
      * @brief imageLabel лэйбл для вывода изображения.
@@ -115,6 +124,7 @@ protected:
      * @brief keyPressEvent ивент изменения нажатия клавиши
      */
     void keyPressEvent(QKeyEvent* event);
+    void closeEvent(QCloseEvent*);
 
 signals:
 

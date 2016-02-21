@@ -14,6 +14,10 @@ int ImageViewer::windowWidth = 400;
 
 int ImageViewer::windowHeight = 500;
 
+QRect ImageViewer::windowRect;
+
+bool ImageViewer::firstStart = true;
+
 ImageViewer::ImageViewer(QString pathToFile, QWidget *parent) :
     QWidget(parent)
 {
@@ -38,21 +42,24 @@ ImageViewer::ImageViewer(QString pathToFile, QWidget *parent) :
 
     setWindowTitle(tr("ImageViewer"));
 
-    //определение размера монитора  подгон окна под его размер
-    QRect rec = QApplication::desktop()->screenGeometry();
-    int height = rec.height();
-    int width = rec.width();
+    if(firstStart) {
+        windowRect.setRect(0,30,QApplication::desktop()->availableGeometry().width()/2,
+                                QApplication::desktop()->availableGeometry().height()-35);
+        firstStart = false;
+    }
 
-    this->windowHeight = height;
-    this->windowWidth = width;
+    this->setGeometry(windowRect);
 
-    resize(width*k,height*k);
+    this->windowHeight = this->height();
+    this->windowWidth = this->width();
 
     if(!open(pathToFile)) {
         this->close();
     }
     this->setAttribute( Qt::WA_DeleteOnClose );
     scrollArea->viewport()->installEventFilter(this);
+
+    this->setWindowFlags(Qt::WindowStaysOnTopHint);
 }
 
 bool ImageViewer::open(QString pathToFile)
@@ -70,7 +77,8 @@ bool ImageViewer::open(QString pathToFile)
     imgOriginalHeight = image.height();
     imgOriginalWidth = image.width();
 
-    imageLabel->resize(this->windowWidth*k-24, this->windowHeight*k-24);
+    //imageLabel->resize(this->windowWidth*k-24, this->windowHeight*k-24);
+    scaleImageToWindowSize();
 
 }
 
@@ -147,6 +155,11 @@ void ImageViewer::keyPressEvent(QKeyEvent *event)
     if(event->key() == Qt::Key_Space) {
         scaleImageToWindowSize();
     }
+}
+
+void ImageViewer::closeEvent(QCloseEvent *)
+{
+    windowRect = this->geometry();
 }
 
 void ImageViewer::zoomIn()
