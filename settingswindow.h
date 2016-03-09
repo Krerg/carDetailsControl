@@ -1,4 +1,4 @@
-#ifndef SETTINGSWINDOW_H
+﻿#ifndef SETTINGSWINDOW_H
 #define SETTINGSWINDOW_H
 
 #include <QWidget>
@@ -23,6 +23,9 @@ private:
     QLineEdit* imageGalleryEdit;
     QPushButton* confirmButton;
     QLineEdit* pathToFiles;
+    QPushButton* selectDirectoryBtn1;
+    QPushButton* selectDirectoryBtn2;
+    QPushButton* selectDirectoryBtn3;
 
     /**
      * @brief imageSizeLabel люлбл для изменения размера изображений
@@ -37,6 +40,7 @@ signals:
     void setSettings(QString globalPath, QString galleryPath, QString pathTofiles, int imageSize);
 public slots:
     void confirm();
+    void selectDirectoryBtnClickedSlot();
 };
 
 #endif // SETTINGSWINDOW_H

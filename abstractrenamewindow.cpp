@@ -1,4 +1,4 @@
-#include "abstractrenamewindow.h"
+﻿#include "abstractrenamewindow.h"
 
 AbstractRenameWindow::AbstractRenameWindow(QWidget *parent) :
     QWidget(parent)
@@ -10,10 +10,10 @@ AbstractRenameWindow::AbstractRenameWindow(QWidget *parent) :
 void AbstractRenameWindow::keyPressEvent(QKeyEvent *event)
 {
     if(event->key()==16777220) {
-        if(newName->hasFocus()) {
+        if(proceedButton->hasFocus()) {
             proceedButton->click();
-        } else if(!proceedButton->hasFocus()) {
-            newName->setFocus();
+        } else {
+            proceedButton->setFocus();
         }
     }
 }

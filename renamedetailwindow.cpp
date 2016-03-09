@@ -1,7 +1,8 @@
-#include "renamedetailwindow.h"
+﻿#include "renamedetailwindow.h"
 #include <QVBoxLayout>
 #include <QDir>
 #include <QDebug>
+#include <QKeyEvent>
 
 RenameDetailWindow::RenameDetailWindow(QString path, QString selectedCategory, QString oldName, QMap<QString, QStringList*>* map, QWidget *parent) :
     QWidget(parent), selectedCategory(selectedCategory)
@@ -21,6 +22,17 @@ RenameDetailWindow::RenameDetailWindow(QString path, QString selectedCategory, Q
     this->map = map;
 
     QObject::connect(proceedButton,SIGNAL(clicked()),this,SLOT(renameDetailSlot()));
+}
+
+void RenameDetailWindow::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key()==16777220) {
+        if(proceedButton->hasFocus()) {
+            proceedButton->click();
+        } else {
+            proceedButton->setFocus();
+        }
+    }
 }
 
 void RenameDetailWindow::renameDetailSlot()

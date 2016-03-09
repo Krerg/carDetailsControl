@@ -1,4 +1,4 @@
-#ifndef RENAMEDETAILCATEGORY_H
+﻿#ifndef RENAMEDETAILCATEGORY_H
 #define RENAMEDETAILCATEGORY_H
 
 #include <QWidget>
@@ -25,6 +25,8 @@ private:
     QString oldName;
 
     QMap<QString, QStringList*>* map;
+
+    void keyPressEvent(QKeyEvent *event);
 
 signals:
     void updateArticlesInfos();

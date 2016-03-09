@@ -1,7 +1,8 @@
-#include "renamedetailcategory.h"
+﻿#include "renamedetailcategory.h"
 #include <QVBoxLayout>
 #include <QDir>
 #include <QDebug>
+#include <QKeyEvent>
 
 RenameDetailCategory::RenameDetailCategory(QString path, QString oldName,QMap<QString, QStringList*>* map, QWidget *parent) :
     QWidget(parent)
@@ -17,6 +18,17 @@ RenameDetailCategory::RenameDetailCategory(QString path, QString oldName,QMap<QS
     this->oldName = oldName;
     this->map = map;
     QObject::connect(proceedButton,SIGNAL(clicked()),this, SLOT(renameDetailCategorySlot()));
+}
+
+void RenameDetailCategory::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key()==16777220) {
+        if(proceedButton->hasFocus()) {
+            proceedButton->click();
+        } else {
+            proceedButton->setFocus();
+        }
+    }
 }
 
 void RenameDetailCategory::renameDetailCategorySlot()

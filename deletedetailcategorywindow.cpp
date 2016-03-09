@@ -1,4 +1,4 @@
-#include "deletedetailcategorywindow.h"
+﻿#include "deletedetailcategorywindow.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDir>
@@ -37,6 +37,7 @@ void DeleteDetailCategoryWindow::deleteCategory()
     QDir temp2;
     int count = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot).size();
     int currentCount=0;
+    emit deleted();
     foreach(QString dirName, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
     {
         ++currentCount;

@@ -1,9 +1,10 @@
-#ifndef CHANGEARTICLEWINDOW_H
+﻿#ifndef CHANGEARTICLEWINDOW_H
 #define CHANGEARTICLEWINDOW_H
 
 #include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QKeyEvent>
 
 class ChangeArticleWindow : public QWidget
 {
@@ -37,8 +38,11 @@ private:
 
     QPushButton* proceedButton;
 
+    void keyPressEvent(QKeyEvent *event);
 
 signals:
+
+    void changed(QString);
 
 public slots:
 

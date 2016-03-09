@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QFileSystemModel>
 #include <QDebug>
@@ -124,7 +124,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->requestDetailGalleryMenu = new QMenu(this);
     this->returnImage = new QAction("Вернуть изображение",requestDetailGalleryMenu);
+    this->setMainImage = new QAction("Установить первым",requestDetailGalleryMenu);
     QObject::connect(returnImage,SIGNAL(triggered()),this,SLOT(returnImageSlot()));
+    QObject::connect(setMainImage,SIGNAL(triggered()),this,SLOT(setMainImageSlot()));
 
     this->requestDetailArticleMenu->addAction(deleteArticle);
     this->requestDetailArticleMenu->addAction(changeArticle);
@@ -210,6 +212,9 @@ MainWindow::MainWindow(QWidget *parent) :
         applySavedValues();
     } else {
         this->savedIndexes->open(QIODevice::ReadWrite | QFile::Append | QFile::Text);
+        fileModelCarMake->setRootPath(globalPath);
+        ui->carMake->setModel(fileModelCarMake);
+        ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
     }
 }
 
@@ -218,14 +223,28 @@ void MainWindow::carMakeChanged(QModelIndex t)
     this->sPath = fileModelCarMake->fileInfo(t).absoluteFilePath();
     ui->carModel->setModel(fileModelCarModel);
     this->ui->carModel->setRootIndex(fileModelCarModel->setRootPath(sPath));
-    QDir tmpDir(sPath);
-    QFileInfoList models = tmpDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
-    if(models.size()>0) {
-        QString firstFile = models.first().fileName();
-        QModelIndex k = fileModelCarModel->index(sPath+"/"+firstFile,0);
-        this->ui->carModel->setCurrentIndex(k);
-        carModelChanged(k);
-    }
+//    QDir tmpDir(sPath);
+//    QFileInfoList models = tmpDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+//    if(models.size()>0) {
+//        QString firstFile = models.first().fileName();
+//        QModelIndex k = fileModelCarModel->index(sPath+"/"+firstFile,0);
+//        this->ui->carModel->setCurrentIndex(k);
+//        carModelChanged(k);
+//    }
+    QModelIndex* tmpIndex = returnFirstChildIndex(sPath, fileModelCarModel);
+    if(tmpIndex) {
+        ui->carModel->setCurrentIndex(*tmpIndex);
+        carModelChanged(*tmpIndex);
+    } else {
+        clearOutput();
+        delete fileModelDetailCategory;
+        fileModelDetailCategory = new QFileSystemModel(this);
+        delete fileDetail;
+        fileDetail = new QFileSystemModel(this);
+        delete fileDetailArticle;
+        fileDetailArticle = new QFileSystemModel(this);
+   }
+
 }
 
 void MainWindow::carModelChanged(QModelIndex t)
@@ -233,24 +252,37 @@ void MainWindow::carModelChanged(QModelIndex t)
     this->modelPath = fileModelCarModel->fileInfo(t).absoluteFilePath();
     ui->detailCategory->setModel(fileModelDetailCategory);
     this->ui->detailCategory->setRootIndex(fileModelDetailCategory->setRootPath(modelPath));
-    QString selectedDetailtmp;
+//    QString selectedDetailtmp;
 
 
-    if(selectedDetailCategory!="") {
-        QModelIndex tmpIndex = fileModelDetailCategory->index(modelPath+"/"+selectedDetailCategory,0);
-        ui->detailCategory->setCurrentIndex(tmpIndex);
-        selectedDetailtmp = selectedDetail;
-        carDetailCategoryChanged(tmpIndex);
+//    if(selectedDetailCategory!="") {
+//        QModelIndex tmpIndex = fileModelDetailCategory->index(modelPath+"/"+selectedDetailCategory,0);
+//        ui->detailCategory->setCurrentIndex(tmpIndex);
+//        selectedDetailtmp = selectedDetail;
+//        carDetailCategoryChanged(tmpIndex);
+//    } else {
+//        clearArticleGallery();
+//    }
+//    if(selectedDetailtmp!="") {
+//        QModelIndex tmpIndex = fileDetail->index(detailCategoryPath+"/"+selectedDetailtmp,0);
+//        ui->detail->setCurrentIndex(tmpIndex);
+//        carDetailChanged(tmpIndex);
+//    } else {
+//        clearArticleGallery();
+//    }
+
+    QModelIndex* tmpIndex = returnFirstChildIndex(modelPath, fileModelDetailCategory);
+    if(tmpIndex) {
+        ui->detailCategory->setCurrentIndex(*tmpIndex);
+        carDetailCategoryChanged(*tmpIndex);
     } else {
-        clearArticleGallery();
-    }
-    if(selectedDetailtmp!="") {
-        QModelIndex tmpIndex = fileDetail->index(detailCategoryPath+"/"+selectedDetailtmp,0);
-        ui->detail->setCurrentIndex(tmpIndex);
-        carDetailChanged(tmpIndex);
-    } else {
-        clearArticleGallery();
-    }
+        clearOutput();
+        delete fileDetail;
+        fileDetail = new QFileSystemModel(this);
+        delete fileDetailArticle;
+        fileDetailArticle = new QFileSystemModel(this);
+   }
+
 }
 
 void MainWindow::carDetailCategoryChanged(QModelIndex t)
@@ -260,9 +292,19 @@ void MainWindow::carDetailCategoryChanged(QModelIndex t)
     ui->detail->setModel(fileDetail);
     ui->detail->setRootIndex(fileDetail->setRootPath(detailCategoryPath));
     selectedDetail="";
-    delete fileDetailArticle;
-    fileDetailArticle = new QFileSystemModel(this);
+    //delete fileDetailArticle;
+   // fileDetailArticle = new QFileSystemModel(this);
     clearArticleGallery();
+
+    QModelIndex* tmpIndex = returnFirstChildIndex(detailCategoryPath, fileDetail);
+    if(tmpIndex) {
+        ui->detail->setCurrentIndex(*tmpIndex);
+        carDetailChanged(*tmpIndex);
+    } else {
+        clearOutput();
+        delete fileDetailArticle;
+        fileDetailArticle = new QFileSystemModel(this);
+    }
 }
 
 void MainWindow::carDetailChanged(QModelIndex t)
@@ -272,14 +314,21 @@ void MainWindow::carDetailChanged(QModelIndex t)
     this->selectedDetail = fileDetail->fileInfo(t).fileName();
     ui->detailArticle->setRootIndex(fileDetailArticle->setRootPath(detailPath));
     clearArticleGallery();
-    QDir selectedDetailDir(detailPath);
-    QFileInfoList selectedDetailInfoList = selectedDetailDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
-    if(selectedDetailInfoList.size() != 0) {
-        QString articlePath = detailPath +"/" + selectedDetailInfoList.first().fileName();
-        QModelIndex tmpIndex = fileDetailArticle->index(articlePath,0);
-        ui->detailArticle->setCurrentIndex(tmpIndex);
-        carDetailArticleChanged(tmpIndex);
-    }
+//    QDir selectedDetailDir(detailPath);
+//    QFileInfoList selectedDetailInfoList = selectedDetailDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+//    if(selectedDetailInfoList.size() != 0) {
+//        QString articlePath = detailPath +"/" + selectedDetailInfoList.first().fileName();
+//        QModelIndex tmpIndex = fileDetailArticle->index(articlePath,0);
+//        ui->detailArticle->setCurrentIndex(tmpIndex);
+//        carDetailArticleChanged(tmpIndex);
+//    }
+
+    QModelIndex* tmpIndex = returnFirstChildIndex(detailPath, fileDetailArticle);
+    if(tmpIndex) {
+        ui->detailArticle->setCurrentIndex(*tmpIndex);
+        carDetailArticleChanged(*tmpIndex);
+    } else
+        clearOutput();
 }
 
 void MainWindow::openImage(QModelIndex t)
@@ -423,9 +472,11 @@ void MainWindow::menuRequestGallery(QPoint pos)
 void MainWindow::menuRequsetDetailGallery(QPoint pos)
 {
     requestDetailGalleryMenu->removeAction(returnImage);
+    requestDetailGalleryMenu->removeAction(setMainImage);
     if(ui->articleGallery->indexAt(pos).row()>=0)
     {
         requestDetailGalleryMenu->addAction(returnImage);
+        requestDetailGalleryMenu->addAction(setMainImage);
     }
     requestDetailGalleryMenu->popup(ui->articleGallery->viewport()->mapToGlobal(pos));
 }
@@ -514,6 +565,8 @@ void MainWindow::deleteArticleSlot()
 void MainWindow::changeArticleSlot()
 {
     ChangeArticleWindow* caw = new ChangeArticleWindow(detailPath+"/"+this->ui->articleOutput->text(),this->ui->articleOutput->text());
+    connect(caw,SIGNAL(changed(QString)),this,SLOT(updateArticlesOutput(QString)));
+    caw->show();
 }
 
 void MainWindow::returnImageSlot()
@@ -544,7 +597,26 @@ void MainWindow::returnImageSlot()
     {
         delete (*i);
     }
-    updateDetailGallery(detailArticlePath);
+
+    updateArticleGalleryFileNames();
+}
+
+void MainWindow::setMainImageSlot()
+{
+    if(this->ui->articleGallery->selectedItems().size() == 1 &&
+            !this->ui->articleGallery->selectedItems().first()->text().contains(".txt")) {
+        //qDebug() << "triger";
+
+        QString selectedItemName = this->ui->articleGallery->selectedItems().first()->text();
+        QStringList splittedFileName = selectedItemName.split(".");
+        clearArticleGallery();
+        QFile::rename(detailArticlePath+"/"+ selectedItemName, detailArticlePath+"/tmpName.tmp");
+        QFile::rename(detailArticlePath+"/"+ this->ui->articleOutput->text()+"_1."+splittedFileName.at(1),
+                      detailArticlePath+"/"+selectedItemName);
+        QFile::rename(detailArticlePath+"/tmpName.tmp",
+                      detailArticlePath+"/"+ this->ui->articleOutput->text()+"_1."+splittedFileName.at(1));
+        updateDetailGallery(detailArticlePath);
+    }
 }
 
 void MainWindow::deleteImageSlot()
@@ -593,7 +665,18 @@ void MainWindow::deleteCarModelSlot()
 {
     ConfirmWindow* c = new ConfirmWindow();
     c->setPath(modelPath);
+    connect(c,SIGNAL(confirm()),this,SLOT(afterDeleteCarModelSlot()));
     c->show();
+}
+
+void MainWindow::afterDeleteCarModelSlot()
+{
+    delete fileModelDetailCategory;
+    fileModelDetailCategory = new QFileSystemModel(this);
+    delete fileDetail;
+    fileDetail = new QFileSystemModel(this);
+    delete fileDetailArticle;
+    fileDetailArticle = new QFileSystemModel(this);
 }
 
 void MainWindow::deleteDetailCategorySlot()
@@ -601,14 +684,36 @@ void MainWindow::deleteDetailCategorySlot()
     QString catName = this->fileModelDetailCategory->fileInfo(this->ui->detailCategory->currentIndex()).fileName();
     DeleteDetailCategoryWindow *w = new DeleteDetailCategoryWindow();
     w->setParameters(globalPath,detailsMap,catName);
+    connect(w,SIGNAL(deleted()),this,SLOT(afterDeleteDetailCategorySlot()));
     w->show();
+}
+
+void MainWindow::afterDeleteDetailCategorySlot()
+{
+    delete fileDetail;
+    fileDetail = new QFileSystemModel(this);
+    delete fileDetailArticle;
+    fileDetailArticle = new QFileSystemModel(this);
 }
 
 void MainWindow::deleteCarMakeSlot()
 {
     ConfirmWindow* c = new ConfirmWindow();
     c->setPath(sPath);
+    connect(c,SIGNAL(confirm()),this,SLOT(afterDeleteCarMakeSlot()));
     c->show();
+}
+
+void MainWindow::afterDeleteCarMakeSlot()
+{
+    delete fileModelCarModel;
+    fileModelCarModel = new QFileSystemModel(this);
+    delete fileModelDetailCategory;
+    fileModelDetailCategory = new QFileSystemModel(this);
+    delete fileDetail;
+    fileDetail = new QFileSystemModel(this);
+    delete fileDetailArticle;
+    fileDetailArticle = new QFileSystemModel(this);
 }
 
 void MainWindow::deleteDetailSlot()
@@ -617,11 +722,19 @@ void MainWindow::deleteDetailSlot()
     QString detName = this->fileDetail->fileName(this->ui->detail->currentIndex());
     DeleteDetailWindow* w = new DeleteDetailWindow();
     w->setParameters(detName,globalPath,catName,detailsMap);
+    connect(w,SIGNAL(deleted()),this,SLOT(afterDeleteDetailSlot()));
     w->show();
+}
+
+void MainWindow::afterDeleteDetailSlot()
+{
+    delete fileDetailArticle;
+    fileDetailArticle = new QFileSystemModel(this);
 }
 
 MainWindow::~MainWindow()
 {
+    detailsMap->clear();
     delete detailsMap;
     delete details;
     delete images;
@@ -689,6 +802,18 @@ void MainWindow::showErrorWindow(QString errorMessage)
     messageBox.setFixedSize(500,200);
 }
 
+QModelIndex *MainWindow::returnFirstChildIndex(const QString &path, QFileSystemModel *&model)
+{
+    QDir selectedDir(path);
+    QFileInfoList selectedInfoList = selectedDir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs);
+    if(selectedInfoList.size() != 0) {
+       QString firstItemPath = path +"/" + selectedInfoList.first().fileName();
+       QModelIndex* tmpIndex = new QModelIndex(model->index(firstItemPath,0));
+       return tmpIndex;
+    }
+    return NULL;
+}
+
 void MainWindow::openSettingsWindow()
 {
     SettingsWindow* w = new SettingsWindow(globalPath,galleryPath,pathTofiles, imageSize);
@@ -744,6 +869,29 @@ void MainWindow::updateGallery()
     this->ui->gallery->setUpdatesEnabled(true);
 
     uw->closeUpdatingWindow();
+}
+
+void MainWindow::updateArticleGalleryFileNames()
+{
+    clearArticleGallery();
+
+    int index = 1;
+    QDir path(detailArticlePath);
+    QFileInfoList articleFiles = path.entryInfoList(QDir::Files);
+    QFileInfoList::iterator itr;
+    for(itr=articleFiles.begin(); itr!= articleFiles.end(); ++itr)
+    {
+        if((*itr).suffix() == "txt")
+            continue;
+        QString oldName = detailArticlePath+"/"+ (*itr).fileName();
+        QString newName = detailArticlePath+"/"+this->ui->articleOutput->text()+
+                          "_"+QString::number(index)+"."+(*itr).suffix();
+        bool sucessful = QFile::rename(oldName,newName);
+        qDebug()<<"Renaiming "<<oldName<<" into "<< newName <<" is "<<sucessful;
+        ++index;
+    }
+
+    updateDetailGallery(detailArticlePath);
 }
 
 void MainWindow::saveSizes(QTextStream* stream)
@@ -1161,6 +1309,14 @@ void MainWindow::importFromExcelSlot()
 void MainWindow::updateArticlesInfosFiles()
 {
     this->updateDetails();
+}
+
+void MainWindow::updateArticlesOutput(QString newName)
+{
+    QModelIndex index = fileDetailArticle->index(newName,0);
+    this->ui->detailArticle->setCurrentIndex(index);
+    carDetailArticleChanged(index);
+    updateArticleGalleryFileNames();
 }
 
 void MainWindow::on_pushButton_clicked()

@@ -1,4 +1,4 @@
-#ifndef CREATEARTICLEWINDOW_H
+﻿#ifndef CREATEARTICLEWINDOW_H
 #define CREATEARTICLEWINDOW_H
 
 #include <QWidget>

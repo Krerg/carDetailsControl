@@ -1,4 +1,4 @@
-#include "confirmwindow.h"
+﻿#include "confirmwindow.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QDir>
@@ -30,6 +30,7 @@ void ConfirmWindow::cancelAction()
 void ConfirmWindow::confirmAction()
 {
     this->close();
+    emit confirm();
     QDir dir(this->path);
     dir.removeRecursively();
     delete this;

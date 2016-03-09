@@ -1,4 +1,4 @@
-#ifndef CONFIRMWINDOW_H
+﻿#ifndef CONFIRMWINDOW_H
 #define CONFIRMWINDOW_H
 
 #include <QObject>

@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QWidget>
@@ -69,6 +69,8 @@ private:
     void removeItemFromGallery();
 
     void updateGallery();
+
+    void updateArticleGalleryFileNames();
 
     void saveSizes(QTextStream* stream);
 
@@ -180,6 +182,8 @@ private:
 
     QAction* returnImage;
 
+    QAction* setMainImage;
+
     QString sPath;
 
     QStringList* detailCategories;
@@ -211,6 +215,8 @@ private:
      */
     QFile* savedIndexes;
 
+    QModelIndex* returnFirstChildIndex(const QString &path, QFileSystemModel *&model);
+
 public slots:
     void carMakeChanged(QModelIndex);
     void carModelChanged(QModelIndex);
@@ -232,24 +238,29 @@ public slots:
     void createCarMakeSlot();
     void renameCarMakeSlot();
     void deleteCarMakeSlot();
+    void afterDeleteCarMakeSlot();
 
     void createCarModelSlot();
     void renameCarModelSlot();
     void deleteCarModelSlot();
+    void afterDeleteCarModelSlot();
 
     void createDetailCategorySlot();
     void renameDetailCategorySlot();
     void deleteDetailCategorySlot();
+    void afterDeleteDetailCategorySlot();
 
     void createDetailSlot();
     void renameDetailSlot();
     void deleteDetailSlot();
+    void afterDeleteDetailSlot();
 
     void createArticleSlot();
     void deleteArticleSlot();
     void changeArticleSlot();
 
     void returnImageSlot();
+    void setMainImageSlot();
     void deleteImageSlot();
     void add2ExistArticleSlot();
 
@@ -260,6 +271,7 @@ public slots:
     void importFromExcelSlot();
 
     void updateArticlesInfosFiles();
+    void updateArticlesOutput(QString newName);
 private slots:
     void on_pushButton_clicked();
 };

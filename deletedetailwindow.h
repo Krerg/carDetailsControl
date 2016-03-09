@@ -1,4 +1,4 @@
-#ifndef DELETEDETAILWINDOW_H
+﻿#ifndef DELETEDETAILWINDOW_H
 #define DELETEDETAILWINDOW_H
 
 #include <QWidget>
@@ -31,7 +31,7 @@ private:
 
     QProgressBar* pb;
 signals:
-
+    void deleted();
 public slots:
     void deleteDetail();
 };

@@ -1,4 +1,4 @@
-#include "deletedetailwindow.h"
+﻿#include "deletedetailwindow.h"
 #include <QVBoxLayout>
 #include <QDir>
 
@@ -28,6 +28,7 @@ void DeleteDetailWindow::deleteDetail()
     QDir temp3; //detail
     int count = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot).size();
     int currentCount=0;
+    emit deleted();
     foreach(QString dirName, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         ++currentCount;
         pb->setValue((int)(((double)currentCount/count)*100));

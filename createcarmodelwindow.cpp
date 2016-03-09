@@ -1,4 +1,4 @@
-#include "createcarmodelwindow.h"
+﻿#include "createcarmodelwindow.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QStringList>
