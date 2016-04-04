@@ -42,17 +42,6 @@ ImageViewer::ImageViewer(QString pathToFile, QWidget *parent) :
 
     setWindowTitle(tr("ImageViewer"));
 
-    if(firstStart) {
-        windowRect.setRect(0,30,QApplication::desktop()->availableGeometry().width()/2,
-                                QApplication::desktop()->availableGeometry().height()-35);
-        firstStart = false;
-    }
-
-    this->setGeometry(windowRect);
-
-    this->windowHeight = this->height();
-    this->windowWidth = this->width();
-
     if(!open(pathToFile)) {
         this->close();
     }
@@ -71,11 +60,25 @@ bool ImageViewer::open(QString pathToFile)
         return false;
     }
 
+    imgOriginalHeight = image.height();
+    imgOriginalWidth = image.width();
+
+    if(firstStart) {
+        int width = QApplication::desktop()->availableGeometry().width()/2;
+        double ratio = double(imgOriginalWidth)/imgOriginalHeight;
+        windowRect.setRect(3,30,width,double(width)/ratio);
+        firstStart = false;
+    }
+
+    this->setGeometry(windowRect);
+
+    this->windowHeight = this->height();
+    this->windowWidth = this->width();
+
     imageLabel->setPixmap(QPixmap::fromImage(image));
     imageLabel->adjustSize();
 
-    imgOriginalHeight = image.height();
-    imgOriginalWidth = image.width();
+
 
     //imageLabel->resize(this->windowWidth*k-24, this->windowHeight*k-24);
     scaleImageToWindowSize();

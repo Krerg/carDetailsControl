@@ -26,7 +26,7 @@ private:
     QPushButton* selectDirectoryBtn1;
     QPushButton* selectDirectoryBtn2;
     QPushButton* selectDirectoryBtn3;
-
+    int oldImageSize;
     /**
      * @brief imageSizeLabel люлбл для изменения размера изображений
      */

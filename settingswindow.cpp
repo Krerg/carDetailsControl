@@ -7,9 +7,9 @@ SettingsWindow::SettingsWindow(QString globalPath,QString galleryPath, QString p
     QWidget(parent)
 {
     QVBoxLayout *v = new QVBoxLayout(this);
-    QHBoxLayout *h1 = new QHBoxLayout(this);
-    QHBoxLayout *h2 = new QHBoxLayout(this);
-    QHBoxLayout *h3 = new QHBoxLayout(this);
+    QHBoxLayout *h1 = new QHBoxLayout();
+    QHBoxLayout *h2 = new QHBoxLayout();
+    QHBoxLayout *h3 = new QHBoxLayout();
     this->globalPath = globalPath;
     this->galleryPath = galleryPath;
     this->setAttribute( Qt::WA_DeleteOnClose );
@@ -31,8 +31,8 @@ SettingsWindow::SettingsWindow(QString globalPath,QString galleryPath, QString p
     imageSizeLabel = new QLabel("Размер изображений", this);
 
     imageSizeSpinBox = new QSpinBox(this);
-    imageSizeSpinBox->setValue(imageSize);
     imageSizeSpinBox->setMaximum(300);
+    imageSizeSpinBox->setValue(imageSize);
 
     v->addWidget(globalPathEditLabel);
     h1->addWidget(globalPathEdit);
@@ -64,16 +64,13 @@ SettingsWindow::SettingsWindow(QString globalPath,QString galleryPath, QString p
 
 SettingsWindow::~SettingsWindow()
 {
-    QLayoutItem *child;
-    while((child = this->layout()->takeAt(0))!=NULL) {
-        child->widget()->deleteLater();
-        delete child;
-    }
+
 }
 
 void SettingsWindow::confirm()
 {
-    emit setSettings(globalPathEdit->text(),imageGalleryEdit->text(),pathToFiles->text(),imageSizeSpinBox->value());
+    emit setSettings(globalPathEdit->text(),imageGalleryEdit->text(),pathToFiles->text(),
+                     imageSizeSpinBox->value());
     this->hide();
     delete this;
 }

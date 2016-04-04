@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     renamedetailwindow.cpp \
     updatingwindow.cpp \
     abstractrenamewindow.cpp \
-    imageviewer.cpp
+    imageviewer.cpp \
+    galleryupatethread.cpp
 
 HEADERS  += mainwindow.h \
     createcarmakewindow.h \
@@ -52,7 +53,8 @@ HEADERS  += mainwindow.h \
     renamedetailwindow.h \
     updatingwindow.h \
     abstractrenamewindow.h \
-    imageviewer.h
+    imageviewer.h \
+    galleryupatethread.h
 
 FORMS    += mainwindow.ui
 include(3rdparty\QtXlsxWriter-master\src\xlsx\qtxlsx.pri)

@@ -1,6 +1,8 @@
 ﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "updatingwindow.h"
+
 #include <QWidget>
 #include <QFileSystemModel>
 #include <QMenuBar>
@@ -91,9 +93,13 @@ private:
 
     Ui::MainWindow *ui;
 
+    //UpdatingWindow* updatingWindow;
+
     QString globalPath;
 
     QString galleryPath;
+
+    QString tmpPath;
 
     /**
      * @brief pathTofiles путь для выгрузки файлов
@@ -272,6 +278,8 @@ public slots:
 
     void updateArticlesInfosFiles();
     void updateArticlesOutput(QString newName);
+    void updateGallerySlot(QListWidgetItem* item);
+    void updateGalleryFinishedSlot();
 private slots:
     void on_pushButton_clicked();
 };

@@ -24,6 +24,7 @@
 #include <QProcess>
 #include <QMessageBox>
 #include "excelhandler.h"
+#include "galleryupatethread.h"
 #include "imageviewer.h"
 #include "importfromexcelwindow.h"
 
@@ -34,6 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->ui->UpdateGalleryProgressBar->setVisible(false);
     this->setAttribute( Qt::WA_DeleteOnClose );
     this->ui->gallery->setIconSize(QSize(5,5));
     this->selectedDetailCategory = "";
@@ -169,7 +171,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->carMake->setModel(fileModelCarMake);
     ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
 
-    ui->gallery->setIconSize(QSize(120,120));
+
 
 
     QObject::connect(this->ui->carMake,SIGNAL(clicked(QModelIndex)),this,SLOT(carMakeChanged(QModelIndex)));
@@ -179,6 +181,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->detailArticle,SIGNAL(clicked(QModelIndex)),this,SLOT(carDetailArticleChanged(QModelIndex)));
 
     //apply settings
+    QDir baseDir;
+    baseDir.current().mkdir("tmp");
+    this->tmpPath = baseDir.current().path() + "/tmp/";
     this->settingsFile = new QFile("settings.txt");
     if(settingsFile->exists()) {
         settingsFile->open(QIODevice::ReadWrite);
@@ -205,7 +210,6 @@ MainWindow::MainWindow(QWidget *parent) :
         out << galleryPath << endl;
     }
     this->setSettings(globalPath,galleryPath,pathTofiles,imageSize);
-
     //Установка сохраненных значений
     this->savedIndexes = new QFile("savedValues.txt");
     if(savedIndexes->exists()) {
@@ -577,15 +581,14 @@ void MainWindow::returnImageSlot()
     {
         QFile f(detailArticlePath+"/"+(*i)->text());
         QFileInfo *d = new QFileInfo(f);
-        bool b = QFile::copy(detailArticlePath+"/"+d->fileName(),galleryPath+"/"+d->fileName());
-
+        bool b = QFile::copy(detailArticlePath+"/"+d->fileName(),galleryPath+"/"+d->fileName());;
         QIcon* j = new QIcon(galleryPath+"/"+d->fileName());
-        QListWidgetItem* g = new QListWidgetItem((j->pixmap(QSize(120,120))),d->fileName());
+        QListWidgetItem* g = new QListWidgetItem((j->pixmap(QSize(300,300))),d->fileName());
         this->images->append(g);
-        g->setSizeHint(QSize(120,120));
+        double ratio = 4.0/3;
+        g->setSizeHint(QSize(imageSize,imageSize/ratio+20));
         this->ui->gallery->addItem(g);
         delete j;
-
         this->ui->articleGallery->removeItemWidget((*i));
         QFile::remove(detailArticlePath+"/"+(*i)->text());
 
@@ -734,11 +737,10 @@ void MainWindow::afterDeleteDetailSlot()
 
 MainWindow::~MainWindow()
 {
-    detailsMap->clear();
-    delete detailsMap;
-    delete details;
-    delete images;
-    delete articleImages;
+   delete detailsMap;
+   delete details;
+   delete images;
+   delete articleImages;
 }
 
 void MainWindow::getDetailCategoriesList()
@@ -834,6 +836,7 @@ void MainWindow::setSettings(QString path, QString galleryPath, QString pathToFi
     out << this->galleryPath << endl;
     out << this->pathTofiles << endl;
     out << this->imageSize << endl;
+
     this->updateAll();
     out.flush();
     settingsFile->close();
@@ -841,34 +844,26 @@ void MainWindow::setSettings(QString path, QString galleryPath, QString pathToFi
 
 void MainWindow::updateGallery()
 {
-    QString regex = "*";
-    QList<QListWidgetItem*> galleryItems = this->ui->gallery->findItems(regex,Qt::MatchWrap | Qt::MatchWildcard);
+
     this->ui->gallery->clear();
     this->ui->gallery->setUpdatesEnabled(false);
     this->ui->gallery->setUniformItemSizes(true);
-    QDir dir(galleryPath);
-    QStringList images = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
+    this->ui->gallery->setSpacing(5);
+    ui->gallery->setIconSize(QSize(imageSize,imageSize));
 
-    UpdatingWindow* uw = new UpdatingWindow(images.size(),"Загрузка");
-    uw->show();
+    QString regex = "*";
+    QList<QListWidgetItem*> galleryItems = this->ui->gallery->findItems(regex,Qt::MatchWrap | Qt::MatchWildcard);
+    GalleryUpateThread* thred = new GalleryUpateThread(&galleryItems,galleryPath,tmpPath);
 
-    QList<QString>::iterator i;
-    QIcon* j;
-    for(i=images.begin();i!=images.end();i++)
-    {
-        uw->increment();
-        QApplication::processEvents();
-        j = new QIcon(galleryPath+"/"+(*i));
-        QListWidgetItem* g = new QListWidgetItem((j->pixmap(QSize(120,120))),(*i));
-        this->images->append(g);
-        g->setSizeHint(QSize(120,120));
-        this->ui->gallery->addItem(g);
-        delete j;
+    connect(thred,SIGNAL(sendQListWidgetItem(QListWidgetItem*)),
+            this,SLOT(updateGallerySlot(QListWidgetItem*)));
+    connect(thred,SIGNAL(finished()),
+            this,SLOT(updateGalleryFinishedSlot()));
+    this->ui->UpdateGalleryProgressBar->reset();
+    this->ui->UpdateGalleryProgressBar->setRange(0,thred->getNumberOfImages());
+    this->ui->UpdateGalleryProgressBar->setVisible(true);
 
-    }
-    this->ui->gallery->setUpdatesEnabled(true);
-
-    uw->closeUpdatingWindow();
+    thred->start();
 }
 
 void MainWindow::updateArticleGalleryFileNames()
@@ -1317,6 +1312,23 @@ void MainWindow::updateArticlesOutput(QString newName)
     this->ui->detailArticle->setCurrentIndex(index);
     carDetailArticleChanged(index);
     updateArticleGalleryFileNames();
+}
+
+void MainWindow::updateGallerySlot(QListWidgetItem *item)
+{   double ratio = 4.0/3;
+    item->setSizeHint(QSize(imageSize,imageSize/ratio+20));
+    this->images->append(item);
+    this->ui->gallery->addItem(item);
+    int value = this->ui->UpdateGalleryProgressBar->value();
+    ++value;
+    this->ui->UpdateGalleryProgressBar->setValue(value);
+    this->ui->UpdateGalleryProgressBar->update();
+}
+
+void MainWindow::updateGalleryFinishedSlot()
+{
+    this->ui->UpdateGalleryProgressBar->setVisible(false);
+    this->ui->gallery->setUpdatesEnabled(true);
 }
 
 void MainWindow::on_pushButton_clicked()
