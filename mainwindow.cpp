@@ -235,6 +235,7 @@ void MainWindow::carMakeChanged(QModelIndex t)
 //        this->ui->carModel->setCurrentIndex(k);
 //        carModelChanged(k);
 //    }
+    clearArticleGallery();
     QModelIndex* tmpIndex = returnFirstChildIndex(sPath, fileModelCarModel);
     if(tmpIndex) {
         ui->carModel->setCurrentIndex(*tmpIndex);

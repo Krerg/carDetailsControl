@@ -1,4 +1,4 @@
-#ifndef CREATECARMAKEWINDOW_H
+﻿#ifndef CREATECARMAKEWINDOW_H
 #define CREATECARMAKEWINDOW_H
 
 #include <QWidget>
@@ -16,6 +16,7 @@ private:
     QLineEdit* carMakeName;
     QPushButton* createButton;
     QString path;
+    void keyPressEvent(QKeyEvent *event);
 signals:
 
 public slots:

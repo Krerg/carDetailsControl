@@ -1,4 +1,4 @@
-#ifndef CREATEDETAILCATEGORYWINDOW_H
+﻿#ifndef CREATEDETAILCATEGORYWINDOW_H
 #define CREATEDETAILCATEGORYWINDOW_H
 
 #include <QWidget>
@@ -24,6 +24,8 @@ private:
     QProgressBar *pb;
 
     QMap<QString, QStringList*>* map;
+
+    void keyPressEvent(QKeyEvent *event);
 signals:
 
 public slots:

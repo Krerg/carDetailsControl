@@ -1,5 +1,6 @@
-#include "createdetailwindow.h"
+﻿#include "createdetailwindow.h"
 #include <QDir>
+#include <QKeyEvent>
 
 CreateDetailWindow::CreateDetailWindow(QWidget *parent) :
     QWidget(parent)
@@ -51,3 +52,15 @@ void CreateDetailWindow::createDetail()
     this->hide();
     delete this;
 }
+
+void CreateDetailWindow::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key()==16777220) {
+        if(confirmButton->hasFocus()) {
+            confirmButton->click();
+        } else {
+            confirmButton->setFocus();
+        }
+    }
+}
+

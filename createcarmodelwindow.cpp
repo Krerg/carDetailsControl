@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QStringList>
 #include <QDir>
+#include <QKeyEvent>
 
 CreateCarModelWindow::CreateCarModelWindow(QWidget *parent) :
     QWidget(parent)
@@ -51,4 +52,15 @@ void CreateCarModelWindow::createCarModel()
 void CreateCarModelWindow::setCategoriesList(QMap<QString, QStringList*>* map)
 {
     this->detailsMap = map;
+}
+
+void CreateCarModelWindow::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key()==16777220) {
+        if(createButton->hasFocus()) {
+            createButton->click();
+        } else {
+            createButton->setFocus();
+        }
+    }
 }

@@ -1,6 +1,7 @@
-#include "createcarmakewindow.h"
+﻿#include "createcarmakewindow.h"
 #include <QVBoxLayout>
 #include <QDir>
+#include <QKeyEvent>
 
 CreateCarMakeWindow::CreateCarMakeWindow(QWidget *parent) :
     QWidget(parent)
@@ -33,5 +34,16 @@ void CreateCarMakeWindow::createCarMake()
 CreateCarMakeWindow::~CreateCarMakeWindow()
 {
 
+}
+
+void CreateCarMakeWindow::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key()==16777220) {
+        if(createButton->hasFocus()) {
+            createButton->click();
+        } else {
+            createButton->setFocus();
+        }
+    }
 }
 

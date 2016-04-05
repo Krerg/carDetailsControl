@@ -25,6 +25,9 @@ private:
     QPushButton* createButton;
 
     QPushButton* cancelButton;
+
+    void keyPressEvent(QKeyEvent *event);
+
 signals:
 
 public slots:

@@ -1,6 +1,7 @@
-#include "createdetailcategorywindow.h"
+﻿#include "createdetailcategorywindow.h"
 #include <QVBoxLayout>
 #include <QDir>
+#include <QKeyEvent>
 
 CreateDetailCategoryWindow::CreateDetailCategoryWindow(QWidget *parent) :
     QWidget(parent)
@@ -51,4 +52,15 @@ void CreateDetailCategoryWindow::createDetailCategory()
     this->map->insert(categoryName->text(),new QStringList());
     this->close();
     delete this;
+}
+
+void CreateDetailCategoryWindow::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key()==16777220) {
+        if(createButton->hasFocus()) {
+            createButton->click();
+        } else {
+            createButton->setFocus();
+        }
+    }
 }
