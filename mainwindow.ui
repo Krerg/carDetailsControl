@@ -643,6 +643,9 @@
          <height>100</height>
         </size>
        </property>
+       <property name="movement">
+        <enum>QListView::Static</enum>
+       </property>
        <property name="resizeMode">
         <enum>QListView::Adjust</enum>
        </property>
@@ -718,6 +721,9 @@
          </property>
          <property name="textElideMode">
           <enum>Qt::ElideMiddle</enum>
+         </property>
+         <property name="movement">
+          <enum>QListView::Static</enum>
          </property>
          <property name="resizeMode">
           <enum>QListView::Adjust</enum>

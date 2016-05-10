@@ -9,6 +9,9 @@ GalleryUpateThread::GalleryUpateThread(QList<QListWidgetItem *> *galleryItems, Q
     this->galleryPath = galleryPath;
     this->tmpPath = tmpPath;
     QDir dir(galleryPath);
+    QStringList filters;
+        filters << "*.jpg" << "*.jpeg" << "*.png";
+    dir.setNameFilters(filters);
     images = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
 }
 

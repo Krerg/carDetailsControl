@@ -32,7 +32,9 @@ SOURCES += main.cpp\
     updatingwindow.cpp \
     abstractrenamewindow.cpp \
     imageviewer.cpp \
-    galleryupatethread.cpp
+    galleryupatethread.cpp \
+    findarticleswindow.cpp \
+    articlegalleryupdatethread.cpp
 
 HEADERS  += mainwindow.h \
     createcarmakewindow.h \
@@ -54,7 +56,9 @@ HEADERS  += mainwindow.h \
     updatingwindow.h \
     abstractrenamewindow.h \
     imageviewer.h \
-    galleryupatethread.h
+    galleryupatethread.h \
+    findarticleswindow.h \
+    articlegalleryupdatethread.h
 
 FORMS    += mainwindow.ui
 include(3rdparty\QtXlsxWriter-master\src\xlsx\qtxlsx.pri)

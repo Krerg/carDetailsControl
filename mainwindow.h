@@ -35,6 +35,10 @@ protected:
 
     void closeEvent(QCloseEvent* e);
 
+//    void dropEvent(QDropEvent *e);
+
+//    void dragEnterEvent(QDragEnterEvent *e);
+
 private:
 
     /**
@@ -279,7 +283,13 @@ public slots:
     void updateArticlesInfosFiles();
     void updateArticlesOutput(QString newName);
     void updateGallerySlot(QListWidgetItem* item);
+    void updateArticleGallerySlot(QListWidgetItem* item);
     void updateGalleryFinishedSlot();
+    void updateArticleGalleryFinishedSlot();
+
+
+    void findeArticlesSlot();
+    void setArticleSlot(QString *path);
 private slots:
     void on_pushButton_clicked();
 };
