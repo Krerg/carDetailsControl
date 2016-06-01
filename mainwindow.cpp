@@ -29,6 +29,7 @@
 #include "galleryupatethread.h"
 #include "imageviewer.h"
 #include "importfromexcelwindow.h"
+#include "movingariclesdialog.h"
 
 const QString MainWindow::NEW_STATE = "NEW";
 
@@ -186,10 +187,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(this->ui->detail,SIGNAL(clicked(QModelIndex)),this,SLOT(carDetailChanged(QModelIndex)));
     QObject::connect(this->ui->detailArticle,SIGNAL(clicked(QModelIndex)),this,SLOT(carDetailArticleChanged(QModelIndex)));
 
+    movingArticlesFlag = false;
     //apply settings
     QDir baseDir;
     baseDir.current().mkdir("tmp");
-    this->tmpPath = baseDir.current().path() + "/tmp/";
+    this->tmpPath = baseDir.current().path() + "/tmp";
+    this->currentTmpPath = this->tmpPath;
     this->settingsFile = new QFile("settings.txt");
     if(settingsFile->exists()) {
         settingsFile->open(QIODevice::ReadWrite);
@@ -215,6 +218,8 @@ MainWindow::MainWindow(QWidget *parent) :
         out << globalPath << endl;
         out << galleryPath << endl;
     }
+    galleryPath.replace("\\","/");
+    currentGalleryPath = galleryPath;
     this->setSettings(globalPath,galleryPath,pathTofiles,imageSize);
     //Установка сохраненных значений
     this->savedIndexes = new QFile("savedValues.txt");
@@ -226,6 +231,8 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->carMake->setModel(fileModelCarMake);
         ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
     }
+
+
 }
 
 void MainWindow::carMakeChanged(QModelIndex t)
@@ -348,9 +355,20 @@ void MainWindow::carDetailChanged(QModelIndex t)
 
 void MainWindow::openImage(QModelIndex t)
 {
-    QString path = t.data().toString();
-    ImageViewer* iv = new ImageViewer(galleryPath+"/"+path);
-    iv->show();
+    if((ui->gallery->item(t.row()))->type() == 1000) {
+        QString path = t.data().toString();
+        currentGalleryPath = currentGalleryPath+"/"+path;
+        currentTmpPath = currentTmpPath+"/"+path;
+        QDir dir(currentTmpPath);
+        if (!dir.exists()) {
+            dir.mkpath(".");
+        }
+        updateGallery();
+    } else {
+        QString path = t.data().toString();
+        ImageViewer* iv = new ImageViewer(currentGalleryPath+"/"+path);
+        iv->show();
+    }
 }
 
 void MainWindow::openArticleImage(QModelIndex t)
@@ -588,7 +606,7 @@ void MainWindow::returnImageSlot()
 {
     QList<QListWidgetItem*> files = this->ui->articleGallery->selectedItems();
     QList<QListWidgetItem*>::Iterator i;
-    QDir dir(galleryPath);
+    QDir dir(currentGalleryPath);
     for(i=files.begin();i!=files.end();i++)
     {
         QFile f(detailArticlePath+"/"+(*i)->text());
@@ -597,7 +615,6 @@ void MainWindow::returnImageSlot()
         int num = 1;
         QString fileName;
         if(dir.exists(d->fileName())){
-            qDebug() << "yes";
             while (dir.exists(d->baseName()+"("+QString::number(num)+")."+d->suffix())){
                 num++;
             }
@@ -606,8 +623,8 @@ void MainWindow::returnImageSlot()
             fileName = d->fileName();
         }
 
-        QFile::copy(detailArticlePath+"/"+d->fileName(),galleryPath+"/"+fileName);
-        QIcon* j = new QIcon(galleryPath+"/"+fileName);
+        QFile::copy(detailArticlePath+"/"+d->fileName(),currentGalleryPath+"/"+fileName);
+        QIcon* j = new QIcon(currentGalleryPath+"/"+fileName);
         QListWidgetItem* g = new QListWidgetItem((j->pixmap(QSize(300,300))),fileName);
         this->images->append(g);
         double ratio = 4.0/3;
@@ -639,10 +656,10 @@ void MainWindow::setMainImageSlot()
         QStringList splittedFileName = selectedItemName.split(".");
         clearArticleGallery();
         QFile::rename(detailArticlePath+"/"+ selectedItemName, detailArticlePath+"/tmpName.tmp");
-        QFile::rename(detailArticlePath+"/"+ this->ui->articleOutput->text()+"_1."+splittedFileName.at(1),
+        QFile::rename(detailArticlePath+"/"+ this->ui->articleOutput->text()+"_0."+splittedFileName.at(1),
                       detailArticlePath+"/"+selectedItemName);
         QFile::rename(detailArticlePath+"/tmpName.tmp",
-                      detailArticlePath+"/"+ this->ui->articleOutput->text()+"_1."+splittedFileName.at(1));
+                      detailArticlePath+"/"+ this->ui->articleOutput->text()+"_0."+splittedFileName.at(1));
         updateDetailGallery(detailArticlePath);
     }
 }
@@ -653,7 +670,7 @@ void MainWindow::deleteImageSlot()
     QList<QListWidgetItem*>::Iterator i;
     for(i=files.begin();i!=files.end();i++)
     {
-        QFile f(galleryPath+"/"+(*i)->text());
+        QFile f(currentGalleryPath+"/"+(*i)->text());
         f.remove();
         this->ui->gallery->removeItemWidget((*i));
         delete (*i);
@@ -675,14 +692,15 @@ void MainWindow::add2ExistArticleSlot()
     QRegExp rx("(\\_|\\.)");
     QStringList splittedFileName = lastFileName.split(rx);
     int imageIndex = splittedFileName.at(1).toInt();
-    imageIndex++;
+    if(splittedFileName.at(1)!= "txt")
+        imageIndex++;
     for(i=files.begin();i!=files.end();i++)
     {
-        QFile f(galleryPath+"/"+(*i)->text());
+        QFile f(currentGalleryPath+"/"+(*i)->text());
         QFileInfo *d = new QFileInfo(f);
         QString h = detailPath+"/"+this->ui->articleOutput->text()+"/"+this->ui->articleOutput->text()+"_"+QString::number(imageIndex)+"."+d->suffix();
-        bool b = QFile::copy(galleryPath+"/"+(*i)->text(),h);
-        qDebug()<<"Copying file "+galleryPath+"/"+(*i)->text()+" into "+h+" is "+b;
+        bool b = QFile::copy(currentGalleryPath+"/"+(*i)->text(),h);
+        qDebug()<<"Copying file "+currentGalleryPath+"/"+(*i)->text()+" into "+h+" is "+b;
         imageIndex++;
     }
     removeItemFromGallery();
@@ -883,6 +901,12 @@ void MainWindow::setSettings(QString path, QString galleryPath, QString pathToFi
 
 void MainWindow::updateGallery()
 {
+    qDebug() << currentGalleryPath;
+    qDebug() << galleryPath;
+    if(galleryPath == currentGalleryPath)
+        ui->backButton->setDisabled(true);
+    else
+        ui->backButton->setDisabled(false);
 
     this->ui->gallery->clear();
     this->ui->gallery->setUpdatesEnabled(false);
@@ -892,7 +916,7 @@ void MainWindow::updateGallery()
 
     QString regex = "*";
     QList<QListWidgetItem*> galleryItems = this->ui->gallery->findItems(regex,Qt::MatchWrap | Qt::MatchWildcard);
-    GalleryUpateThread* thred = new GalleryUpateThread(&galleryItems,galleryPath,tmpPath);
+    GalleryUpateThread* thred = new GalleryUpateThread(&galleryItems,currentGalleryPath,currentTmpPath);
 
     connect(thred,SIGNAL(sendQListWidgetItem(QListWidgetItem*)),
             this,SLOT(updateGallerySlot(QListWidgetItem*)));
@@ -909,7 +933,7 @@ void MainWindow::updateArticleGalleryFileNames()
 {
     clearArticleGallery();
 
-    int index = 1;
+    int index = 0;
     QDir path(detailArticlePath);
     QFileInfoList articleFiles = path.entryInfoList(QDir::Files);
     QFileInfoList::iterator itr;
@@ -1011,7 +1035,7 @@ void MainWindow::removeItemFromGallery()
     QList<QListWidgetItem*>::Iterator i;
     for(i=files.begin();i!=files.end();i++)
     {
-        QFile f(galleryPath+"/"+(*i)->text());
+        QFile f(currentGalleryPath+"/"+(*i)->text());
         f.remove();
         this->ui->gallery->removeItemWidget((*i));
         delete (*i);
@@ -1093,6 +1117,64 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     if ( (event->key() == Qt::Key_F) && QApplication::keyboardModifiers()
                                      && Qt::ControlModifier){
         findeArticlesSlot();
+    }
+    if ( (event->key() == Qt::Key_X) && QApplication::keyboardModifiers()
+                                     && Qt::ControlModifier){
+        foreach (QModelIndex index,
+                ui->detailArticle->selectionModel()->selectedIndexes())
+            movingArticlesList.append(this->fileDetailArticle->fileInfo(index).fileName());
+        oldDetailPath = detailPath;
+        movingArticlesFlag = true;
+
+    }
+    if ( (event->key() == Qt::Key_V) && QApplication::keyboardModifiers()
+                                     && Qt::ControlModifier
+                                     && movingArticlesFlag){
+        MovingAriclesDialog* dialog =
+                new MovingAriclesDialog(oldDetailPath,
+                                        detailPath,
+                                        movingArticlesList.join(","));
+        if (dialog->exec() == QDialog::Accepted) {
+            delete dialog;
+            QString articlesPath = detailPath;
+            QString path = globalPath;
+            path.replace("\\","/");
+            articlesPath.remove(path+"/");
+            QStringList categories = articlesPath.split("/");
+            QDir dir;
+            foreach (QString article, movingArticlesList) {
+                if(dir.rename(oldDetailPath+"/"+article,
+                                detailPath+"/"+article )) {
+
+
+                        QFile file(detailPath+"/"+article+"/"+article+".txt");
+                        if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+
+                        QStringList stringList;
+                        QTextStream textStream1(&file);
+
+                        while (!textStream1.atEnd())
+                            stringList << textStream1.readLine();
+                        QMutableStringListIterator i (stringList);
+                        i.next();
+                        i.setValue(categories.at(0)); i.next();
+                        i.setValue(categories.at(1)); i.next();
+                        i.setValue(categories.at(2)); i.next();
+                        i.setValue(categories.at(3));
+
+                        file.close();
+                        file.open((QFile::WriteOnly|QFile::Truncate|QIODevice::Text));
+                        QTextStream textStream2(&file);
+                        textStream2 << stringList.join('\n');
+                        qDebug() << stringList;
+                        file.close();
+                    }
+                }
+            }
+        }
+        movingArticlesList.clear();
+        oldDetailPath.clear();
+        movingArticlesFlag = false;
     }
 }
 
@@ -1409,8 +1491,12 @@ void MainWindow::updateArticlesOutput(QString newName)
 
 void MainWindow::updateGallerySlot(QListWidgetItem *item)
 {   double ratio = 4.0/3;
-    item->setSizeHint(QSize(imageSize,imageSize/ratio+20));
-    this->images->append(item);
+    if(item->type() == 1000) {
+          item->setSizeHint(QSize(imageSize,imageSize/ratio+20));
+    } else {
+        item->setSizeHint(QSize(imageSize,imageSize/ratio+20));
+        this->images->append(item);
+    }
     this->ui->gallery->addItem(item);
     int value = this->ui->UpdateGalleryProgressBar->value();
     ++value;
@@ -1498,5 +1584,23 @@ void MainWindow::setArticleSlot(QString* path)
 
 void MainWindow::on_pushButton_clicked()
 {
+    updateGallery();
+}
+
+void MainWindow::on_homeButton_clicked()
+{
+    currentGalleryPath = galleryPath;
+    currentTmpPath = tmpPath;
+    updateGallery();
+}
+
+void MainWindow::on_backButton_clicked()
+{
+    QDir dir1(currentGalleryPath);
+    dir1.cdUp();
+    currentGalleryPath = dir1.absolutePath();
+    QDir dir2(currentTmpPath);
+    dir2.cdUp();
+    currentTmpPath = dir2.absolutePath();
     updateGallery();
 }

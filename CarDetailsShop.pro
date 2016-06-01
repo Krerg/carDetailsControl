@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     imageviewer.cpp \
     galleryupatethread.cpp \
     findarticleswindow.cpp \
-    articlegalleryupdatethread.cpp
+    articlegalleryupdatethread.cpp \
+    movingariclesdialog.cpp
 
 HEADERS  += mainwindow.h \
     createcarmakewindow.h \
@@ -58,7 +59,11 @@ HEADERS  += mainwindow.h \
     imageviewer.h \
     galleryupatethread.h \
     findarticleswindow.h \
-    articlegalleryupdatethread.h
+    articlegalleryupdatethread.h \
+    movingariclesdialog.h
 
 FORMS    += mainwindow.ui
 include(3rdparty\QtXlsxWriter-master\src\xlsx\qtxlsx.pri)
+
+RESOURCES += \
+    resource.qrc

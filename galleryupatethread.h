@@ -19,6 +19,7 @@ private:
      QString galleryPath;
      QString tmpPath;
      QStringList images;
+     QStringList subDirs;
 };
 
 #endif // GALLARYUPATETHREAD_H

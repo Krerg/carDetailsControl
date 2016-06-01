@@ -3,6 +3,7 @@
 
 #include <QLineEdit>
 #include <QListWidget>
+#include <QProgressBar>
 #include <QPushButton>
 #include <QWidget>
 
@@ -20,10 +21,13 @@ private:
     QStringList containingWords;
     QStringList foundFiles;
     QListWidget* filesWidget;
+    QProgressBar *progressBar;
+    int count;
     void keyPressEvent(QKeyEvent *event);
     void showFiles();
+    void countArticles();
 signals:
-    articleActivated(QString*);
+    void articleActivated(QString*);
 public slots:
     void findArticles();
     void fileItemActivated(QListWidgetItem * item);

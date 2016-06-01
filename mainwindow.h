@@ -103,16 +103,26 @@ private:
 
     QString galleryPath;
 
+    QString currentGalleryPath;
+
     QString tmpPath;
+
+    QString currentTmpPath;
 
     /**
      * @brief pathTofiles путь для выгрузки файлов
      */
+    bool movingArticlesFlag;
+
+    QStringList movingArticlesList;
+
     QString pathTofiles;
 
     QString modelPath;
 
     QString detailPath;
+
+    QString oldDetailPath;
 
     QString detailArticlePath;
 
@@ -292,6 +302,8 @@ public slots:
     void setArticleSlot(QString *path);
 private slots:
     void on_pushButton_clicked();
+    void on_homeButton_clicked();
+    void on_backButton_clicked();
 };
 
 #endif // MAINWINDOW_H

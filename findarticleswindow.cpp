@@ -12,13 +12,18 @@ FindArticlesWindow::FindArticlesWindow(QString path, QWidget *parent)
     this->findPushButton = new QPushButton("Поиск");
     this->findPushButton->setMaximumWidth(50);
     this->path = path;
+    this->path.replace("\\","/");
     this->filesWidget = new QListWidget();
     this->filesWidget->setVisible(false);
+    this->count = 0;
+    this->progressBar = new QProgressBar;
+    progressBar->setVisible(false);
     QVBoxLayout *v = new QVBoxLayout(this);
     QHBoxLayout *h1 = new QHBoxLayout();
     h1->addWidget(findLineEdit);
     h1->addWidget(findPushButton);
     v->addLayout(h1);
+    v->addWidget(progressBar);
     v->addWidget(filesWidget);
 
     this->setWindowFlags(Qt::WindowStaysOnTopHint);
@@ -28,6 +33,8 @@ FindArticlesWindow::FindArticlesWindow(QString path, QWidget *parent)
     QObject::connect(findPushButton,SIGNAL(clicked()),this,SLOT(findArticles()));
     QObject::connect(filesWidget,SIGNAL(itemActivated(QListWidgetItem*)),
                      this,SLOT(fileItemActivated(QListWidgetItem*)));
+
+    countArticles();
 }
 
 FindArticlesWindow::~FindArticlesWindow()
@@ -55,10 +62,24 @@ void FindArticlesWindow::showFiles()
     }
 }
 
+void FindArticlesWindow::countArticles()
+{
+    QDirIterator i(path, QStringList() << "*.txt",
+                    QDir::Files, QDirIterator::Subdirectories);
+
+     while (i.hasNext()) {
+        count++;
+        i.next();
+     }
+}
+
 void FindArticlesWindow::findArticles()
 {
 
     if(findLineEdit->text() != "") {
+        progressBar->reset();
+        progressBar->setRange(0,count);
+        progressBar->setVisible(true);
         containingWords = findLineEdit->text().split(" ");
         QStringListIterator i(containingWords);
         QString fileName;
@@ -90,7 +111,13 @@ void FindArticlesWindow::findArticles()
                 foundFiles << fileName;
             }
             showFiles();
+
+            int value = progressBar->value();
+            ++value;
+            progressBar->setValue(value);
+            progressBar->update();
         }
+        progressBar->setVisible(false);
     }
 }
 
@@ -99,4 +126,6 @@ void FindArticlesWindow::fileItemActivated(QListWidgetItem *item)
     QString str = item->text();
     emit articleActivated(&str);
 }
+
+
 
