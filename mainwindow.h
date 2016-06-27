@@ -39,6 +39,9 @@ protected:
 
 //    void dragEnterEvent(QDragEnterEvent *e);
 
+signals:
+    void closeArticleGalleryUpdateThread();
+
 private:
 
     /**
@@ -102,6 +105,8 @@ private:
     QString globalPath;
 
     QString galleryPath;
+
+    QString pathToSiteFiles;
 
     QString currentGalleryPath;
 
@@ -204,6 +209,10 @@ private:
 
     QAction* setMainImage;
 
+    QAction* hideImage;
+
+    QAction* showImage;
+
     QString sPath;
 
     QStringList* detailCategories;
@@ -236,6 +245,9 @@ private:
     QFile* savedIndexes;
 
     QModelIndex* returnFirstChildIndex(const QString &path, QFileSystemModel *&model);
+
+    void beforCreateArticle();
+    void cancelCreateArticle();
 
 public slots:
     void carMakeChanged(QModelIndex);
@@ -283,9 +295,13 @@ public slots:
     void setMainImageSlot();
     void deleteImageSlot();
     void add2ExistArticleSlot();
+    void hideImageSlot();
+    void showImageSlot();
 
     void openSettingsWindow();
-    void setSettings(QString path, QString galleryPath, QString pathTofiles, int imageSize);
+    void setSettings(QString path, QString galleryPath,
+                     QString pathTofiles,QString pathToSiteFiles,
+                     int imageSize);
 
     void exportToExcelSlot();
     void importFromExcelSlot();
@@ -304,6 +320,7 @@ private slots:
     void on_pushButton_clicked();
     void on_homeButton_clicked();
     void on_backButton_clicked();
+    void on_createArticleButton_clicked();
 };
 
 #endif // MAINWINDOW_H

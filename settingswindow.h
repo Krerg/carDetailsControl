@@ -11,7 +11,9 @@ class SettingsWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit SettingsWindow(QString globalPath,QString galleryPath,QString pathToFiles, int imageSize, QWidget *parent = 0);
+    explicit SettingsWindow(QString globalPath,QString galleryPath,
+                            QString pathToFiles, QString pathToSiteFiles,
+                            int imageSize, QWidget *parent = 0);
     ~SettingsWindow();
 private:
     QString globalPath;
@@ -21,11 +23,14 @@ private:
     QLabel* imageGalleryEditLabel;
     QLabel* pathToFilesLabel;
     QLineEdit* imageGalleryEdit;
+    QLabel* pathToSiteFilesLabel;
+    QLineEdit* pathToSiteFilesEdit;
     QPushButton* confirmButton;
     QLineEdit* pathToFiles;
     QPushButton* selectDirectoryBtn1;
     QPushButton* selectDirectoryBtn2;
     QPushButton* selectDirectoryBtn3;
+    QPushButton* selectDirectoryBtn4;
     int oldImageSize;
     /**
      * @brief imageSizeLabel люлбл для изменения размера изображений
@@ -36,8 +41,9 @@ private:
      * @brief imageSizeSpinBox компонент для изменения размера изображений в галерее
      */
     QSpinBox* imageSizeSpinBox;
+    QString setCanonicalPath(QString path);
 signals:
-    void setSettings(QString globalPath, QString galleryPath, QString pathTofiles, int imageSize);
+    void setSettings(QString globalPath, QString galleryPath, QString pathTofiles, QString pathToSiteFiles, int imageSize);
 public slots:
     void confirm();
     void selectDirectoryBtnClickedSlot();

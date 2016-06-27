@@ -1,4 +1,4 @@
-#include "excelhandler.h"
+﻿#include "excelhandler.h"
 #include <QVBoxLayout>
 #include <QDir>
 #include <QDebug>
@@ -6,8 +6,8 @@
 #include <QApplication>
 #include "mainwindow.h"
 
-ExcelHandler::ExcelHandler(QString path, QString pathToFiles, QWidget *parent) :
-    QWidget(parent),pathToFiles(pathToFiles)
+ExcelHandler::ExcelHandler(QString path, QString pathToFiles, QString pathToSiteFiles, QWidget *parent) :
+    QWidget(parent),pathToFiles(pathToFiles),pathToSiteFiles(pathToSiteFiles)
 {
     this->path = path;
     QVBoxLayout* v = new QVBoxLayout(this);
@@ -60,6 +60,11 @@ bool ExcelHandler::checkState(QString path)
     }
 }
 
+QString ExcelHandler::setImgPath(QString imgPath)
+{
+    return (pathToSiteFiles == "") ? imgPath : pathToSiteFiles;
+}
+
 void ExcelHandler::exportAllToExcel()
 {
     QFile outputFile(outputExcelFile->text());
@@ -77,6 +82,8 @@ void ExcelHandler::exportAllToExcel()
     excelFile.write("G1","CV_PRICE_1");
     excelFile.write("H1","IE_DETAIL_PICTURE");
     excelFile.write("I1","IP_PROP23");
+    excelFile.write("J1","IP_PROP26");
+    excelFile.write("K1","IP_PROP32");
 
     //проверяем папку для выгрузки
     QDir imageOutDir(pathToFiles);
@@ -114,15 +121,15 @@ void ExcelHandler::exportAllToExcel()
                             continue;
                         }
                         foreach(QString image,imageDir.entryList(QDir::Files | QDir::NoDotAndDotDot)) {
-                            if(image!=(article+".txt")) {
+                            if(!image.contains(QRegExp("(\.txt)|(\[H\])"))) {
                                 if(mainImage=="") {
                                     mainImage=image;
                                     QFile::copy(imageDir.path()+"/"+mainImage,imageOutDir.path()+"/"+mainImage);
                                     continue;
                                 }
 
-                                excelFile.write(QString("I%1").arg(currentExcelRow),imageDir.path()+"/"+image);
-                                excelFile.write(QString("H%1").arg(currentExcelRow),imageDir.path()+"/"+mainImage);
+                                excelFile.write(QString("I%1").arg(currentExcelRow),setImgPath(imageDir.path())+"/"+image);
+                                excelFile.write(QString("H%1").arg(currentExcelRow),setImgPath(imageDir.path())+"/"+mainImage);
                                 excelFile.write(QString("A%1").arg(currentExcelRow),detail);
                                 excelFile.write(QString("D%1").arg(currentExcelRow),carMark);
                                 excelFile.write(QString("E%1").arg(currentExcelRow),carModel);
@@ -135,8 +142,9 @@ void ExcelHandler::exportAllToExcel()
                                         in.readLine();
                                     }
                                     excelFile.write(QString("G%1").arg(currentExcelRow),in.readLine());
-                                    in.readLine();
-                                    in.readLine();
+                                    //in.readLine();
+                                    excelFile.write(QString("K%1").arg(currentExcelRow),in.readLine());
+                                    excelFile.write(QString("J%1").arg(currentExcelRow),in.readLine());
                                     excelFile.write(QString("B%1").arg(currentExcelRow),in.readLine());
                                 }
                                 QFile::copy(imageDir.path()+"/"+image,imageOutDir.path()+"/"+image);

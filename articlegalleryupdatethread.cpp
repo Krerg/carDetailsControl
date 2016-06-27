@@ -24,7 +24,7 @@ void ArticleGalleryUpdateThread::run()
     QList<QString>::iterator i;
     QIcon* j;
     for(i=images.begin();i!=images.end();i++){
-        j = new QIcon(galleryPath+(*i));
+        j = new QIcon(galleryPath+(*i));       
         QListWidgetItem* g = new QListWidgetItem((j->pixmap(QSize(80,80))),(*i));
         //this->articleImages->append(g);
         g->setSizeHint(QSize(80,80));

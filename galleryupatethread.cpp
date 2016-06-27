@@ -29,7 +29,6 @@ void GalleryUpateThread::run()
     QDir tmpDir(tmpPath);
     for (i=subDirs.begin();i!=subDirs.end();i++) {
         QListWidgetItem* g = new QListWidgetItem(QIcon(":resource/images/folder.png"),(*i),0,1000);
-        //g->
         emit sendQListWidgetItem(g);
     }
 

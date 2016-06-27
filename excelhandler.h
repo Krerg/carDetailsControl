@@ -1,4 +1,4 @@
-#ifndef EXCELHANDLER_H
+﻿#ifndef EXCELHANDLER_H
 #define EXCELHANDLER_H
 
 #include <QObject>
@@ -6,6 +6,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QProgressBar>
+#include <QDir>
 
 /**
  * @brief The ExcelHandler class окно для работы с Excel
@@ -20,7 +21,7 @@ public:
      * @param pathToFiles путь для выгрузки фотографий
      * @param parent родительский объект
      */
-    explicit ExcelHandler(QString path,QString pathToFiles,QWidget *parent = 0);
+    explicit ExcelHandler(QString path,QString pathToFiles,QString pathToSiteFiles,QWidget *parent = 0);
 private:
     //GUI элементы
     QLabel* outputFileLabel;
@@ -30,10 +31,12 @@ private:
     QString path;
     QProgressBar* pb;
     QString pathToFiles;
+    QString pathToSiteFiles;
 
     bool exportAll = true;
 
     bool checkState(QString path);
+    QString setImgPath(QString);
 
 signals:
 
