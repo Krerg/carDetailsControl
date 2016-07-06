@@ -23,6 +23,7 @@
 #include <QListWidget>
 #include <QProcess>
 #include <QMessageBox>
+#include "articlecounterthread.h"
 #include "articlegalleryupdatethread.h"
 #include "excelhandler.h"
 #include "findarticleswindow.h"
@@ -239,7 +240,10 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->carMake->setModel(fileModelCarMake);
         ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
     }
-
+    this->articleCount = 0;
+    ArticleCounterThread* thred = new ArticleCounterThread(globalPath);
+    connect(thred,SIGNAL(sendCount(int)),this,SLOT(setArticleCountSlot(int)));
+    thred->start();
 
 }
 
@@ -991,6 +995,7 @@ void MainWindow::beforCreateArticle()
                     delete d;
                     imageNumber++;
                 }
+                articleCount++;
             } else {
                  showErrorWindow("Введите название артикула");
                  return;
@@ -1524,7 +1529,6 @@ void MainWindow::updateDetails()
 void MainWindow::updateDetailGallery(QString detailPath)
 {
     if(isUpdateDetailGalleryFinished){
-        emit closeArticleGalleryUpdateThread();
         this->ui->articleGallery->clear();
         this->ui->articleGallery->setUpdatesEnabled(false);
         this->isUpdateDetailGalleryFinished = false;
@@ -1534,7 +1538,6 @@ void MainWindow::updateDetailGallery(QString detailPath)
                 this,SLOT(updateArticleGallerySlot(QListWidgetItem*)));
         connect(thred,SIGNAL(finished()),
                 this,SLOT(updateArticleGalleryFinishedSlot()));
-        connect(this,SIGNAL(closeArticleGalleryUpdateThread()),thred,SLOT(stop()));
         thred->start();
     }
 }
@@ -1656,9 +1659,14 @@ void MainWindow::updateArticleGalleryFinishedSlot()
     isUpdateDetailGalleryFinished = true;
 }
 
+void MainWindow::setArticleCountSlot(int count)
+{
+    this->articleCount = count;
+}
+
 void MainWindow::findeArticlesSlot()
 {
-    FindArticlesWindow* m = new FindArticlesWindow(globalPath);
+    FindArticlesWindow* m = new FindArticlesWindow(globalPath,articleCount);
     connect(m,SIGNAL(articleActivated(QString*)),
             this,SLOT(setArticleSlot(QString*)));
     m->show();

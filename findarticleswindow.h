@@ -12,7 +12,7 @@ class FindArticlesWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit FindArticlesWindow(QString path, QWidget *parent = 0);
+    explicit FindArticlesWindow(QString path, int count, QWidget *parent = 0);
     ~FindArticlesWindow();
 private:
     QLineEdit* findLineEdit;
@@ -25,7 +25,6 @@ private:
     int count;
     void keyPressEvent(QKeyEvent *event);
     void showFiles();
-    void countArticles();
 signals:
     void articleActivated(QString*);
 public slots:

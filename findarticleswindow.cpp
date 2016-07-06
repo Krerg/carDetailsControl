@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QKeyEvent>
 
-FindArticlesWindow::FindArticlesWindow(QString path, QWidget *parent)
+FindArticlesWindow::FindArticlesWindow(QString path, int count, QWidget *parent)
     : QWidget(parent)
 {
     this->findLineEdit = new QLineEdit();
@@ -15,7 +15,7 @@ FindArticlesWindow::FindArticlesWindow(QString path, QWidget *parent)
     this->path.replace("\\","/");
     this->filesWidget = new QListWidget();
     this->filesWidget->setVisible(false);
-    this->count = 0;
+    this->count = count;
     this->progressBar = new QProgressBar;
     progressBar->setVisible(false);
     QVBoxLayout *v = new QVBoxLayout(this);
@@ -34,7 +34,7 @@ FindArticlesWindow::FindArticlesWindow(QString path, QWidget *parent)
     QObject::connect(filesWidget,SIGNAL(itemActivated(QListWidgetItem*)),
                      this,SLOT(fileItemActivated(QListWidgetItem*)));
 
-    countArticles();
+    //countArticles();
 }
 
 FindArticlesWindow::~FindArticlesWindow()
@@ -60,17 +60,6 @@ void FindArticlesWindow::showFiles()
         filesWidget->insertItems(0, foundFiles);
         this->filesWidget->setVisible(true);
     }
-}
-
-void FindArticlesWindow::countArticles()
-{
-    QDirIterator i(path, QStringList() << "*.txt",
-                    QDir::Files, QDirIterator::Subdirectories);
-
-     while (i.hasNext()) {
-        count++;
-        i.next();
-     }
 }
 
 void FindArticlesWindow::findArticles()

@@ -246,6 +246,9 @@ private:
 
     QModelIndex* returnFirstChildIndex(const QString &path, QFileSystemModel *&model);
 
+    int articleCount;
+
+
     bool isUpdateDetailGalleryFinished;
     bool isUpdateGalleryFinished;
     void beforCreateArticle();
@@ -314,7 +317,7 @@ public slots:
     void updateArticleGallerySlot(QListWidgetItem* item);
     void updateGalleryFinishedSlot();
     void updateArticleGalleryFinishedSlot();
-
+    void setArticleCountSlot(int count);
 
     void findeArticlesSlot();
     void setArticleSlot(QString *path);
