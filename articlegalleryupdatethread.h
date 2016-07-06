@@ -2,6 +2,7 @@
 #define ARTICLEGALLERYUPDATETHREAD_H
 
 #include <QListWidgetItem>
+#include <QMutex>
 #include <QThread>
 
 

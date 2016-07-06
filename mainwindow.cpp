@@ -54,6 +54,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     initWindowSize();
 
+    isUpdateDetailGalleryFinished = true;
+    isUpdateGalleryFinished = true;
+
     menuBar = new QMenuBar(this);
     this->service = new QMenu("Сервис");
     this->settings = new QAction("Настройки",service);
@@ -700,6 +703,12 @@ void MainWindow::add2ExistArticleSlot()
     if(article == "") {
         return;
     }
+    QDir existArticle (detailPath+"/"+this->ui->articleOutput->text()+"/"+this->ui->articleOutput->text());
+    if(!existArticle.exists() || this->ui->articleOutput->text().isEmpty()){
+        showErrorWindow("Артикул еще не сохранен.\nВыделите нужные изображения и нажмите кнопку «Cохранить»");
+        return;
+    }
+
     QString path = detailPath+"/"+this->ui->articleOutput->text();
     QDir tmpDir(path);
     QFileInfoList articleFiles = tmpDir.entryInfoList();
@@ -1040,30 +1049,33 @@ void MainWindow::updateGallery()
 {
     //qDebug() << currentGalleryPath;
     //qDebug() << galleryPath;
-    if(galleryPath == currentGalleryPath)
-        ui->backButton->setDisabled(true);
-    else
-        ui->backButton->setDisabled(false);
+    if(isUpdateGalleryFinished) {
+        isUpdateGalleryFinished = false;
+        if(galleryPath == currentGalleryPath)
+            ui->backButton->setDisabled(true);
+        else
+            ui->backButton->setDisabled(false);
 
-    this->ui->gallery->clear();
-    this->ui->gallery->setUpdatesEnabled(false);
-    this->ui->gallery->setUniformItemSizes(true);
-    this->ui->gallery->setSpacing(5);
-    ui->gallery->setIconSize(QSize(imageSize,imageSize));
+        this->ui->gallery->clear();
+        this->ui->gallery->setUpdatesEnabled(false);
+        this->ui->gallery->setUniformItemSizes(true);
+        this->ui->gallery->setSpacing(5);
+        ui->gallery->setIconSize(QSize(imageSize,imageSize));
 
-    QString regex = "*";
-    QList<QListWidgetItem*> galleryItems = this->ui->gallery->findItems(regex,Qt::MatchWrap | Qt::MatchWildcard);
-    GalleryUpateThread* thred = new GalleryUpateThread(&galleryItems,currentGalleryPath,currentTmpPath);
+        QString regex = "*";
+        QList<QListWidgetItem*> galleryItems = this->ui->gallery->findItems(regex,Qt::MatchWrap | Qt::MatchWildcard);
+        GalleryUpateThread* thred = new GalleryUpateThread(&galleryItems,currentGalleryPath,currentTmpPath);
 
-    connect(thred,SIGNAL(sendQListWidgetItem(QListWidgetItem*)),
-            this,SLOT(updateGallerySlot(QListWidgetItem*)));
-    connect(thred,SIGNAL(finished()),
-            this,SLOT(updateGalleryFinishedSlot()));
-    this->ui->UpdateGalleryProgressBar->reset();
-    this->ui->UpdateGalleryProgressBar->setRange(0,thred->getNumberOfImages());
-    this->ui->UpdateGalleryProgressBar->setVisible(true);
+        connect(thred,SIGNAL(sendQListWidgetItem(QListWidgetItem*)),
+                this,SLOT(updateGallerySlot(QListWidgetItem*)));
+        connect(thred,SIGNAL(finished()),
+                this,SLOT(updateGalleryFinishedSlot()));
+        this->ui->UpdateGalleryProgressBar->reset();
+        this->ui->UpdateGalleryProgressBar->setRange(0,thred->getNumberOfImages());
+        this->ui->UpdateGalleryProgressBar->setVisible(true);
 
-    thred->start();
+        thred->start();
+    }
 }
 
 void MainWindow::updateArticleGalleryFileNames()
@@ -1511,17 +1523,20 @@ void MainWindow::updateDetails()
 
 void MainWindow::updateDetailGallery(QString detailPath)
 {
-    emit closeArticleGalleryUpdateThread();
-    this->ui->articleGallery->clear();
-    this->ui->articleGallery->setUpdatesEnabled(false);
+    if(isUpdateDetailGalleryFinished){
+        emit closeArticleGalleryUpdateThread();
+        this->ui->articleGallery->clear();
+        this->ui->articleGallery->setUpdatesEnabled(false);
+        this->isUpdateDetailGalleryFinished = false;
+        ArticleGalleryUpdateThread* thred = new ArticleGalleryUpdateThread(detailPath+"/");
 
-    ArticleGalleryUpdateThread* thred = new ArticleGalleryUpdateThread(detailPath+"/");
-
-    connect(thred,SIGNAL(sendQListWidgetItem(QListWidgetItem*)),
-            this,SLOT(updateArticleGallerySlot(QListWidgetItem*)));
-    connect(thred,SIGNAL(finished()),
-            this,SLOT(updateArticleGalleryFinishedSlot()));
-    thred->start();
+        connect(thred,SIGNAL(sendQListWidgetItem(QListWidgetItem*)),
+                this,SLOT(updateArticleGallerySlot(QListWidgetItem*)));
+        connect(thred,SIGNAL(finished()),
+                this,SLOT(updateArticleGalleryFinishedSlot()));
+        connect(this,SIGNAL(closeArticleGalleryUpdateThread()),thred,SLOT(stop()));
+        thred->start();
+    }
 }
 
 void MainWindow::clearOutput()
@@ -1632,11 +1647,13 @@ void MainWindow::updateGalleryFinishedSlot()
 {
     this->ui->UpdateGalleryProgressBar->setVisible(false);
     this->ui->gallery->setUpdatesEnabled(true);
+    isUpdateGalleryFinished = true;
 }
 
 void MainWindow::updateArticleGalleryFinishedSlot()
 {
     this->ui->articleGallery->setUpdatesEnabled(true);
+    isUpdateDetailGalleryFinished = true;
 }
 
 void MainWindow::findeArticlesSlot()
@@ -1645,6 +1662,7 @@ void MainWindow::findeArticlesSlot()
     connect(m,SIGNAL(articleActivated(QString*)),
             this,SLOT(setArticleSlot(QString*)));
     m->show();
+
 }
 
 void MainWindow::setArticleSlot(QString* path)

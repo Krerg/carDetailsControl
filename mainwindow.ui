@@ -646,6 +646,9 @@
          <height>100</height>
         </size>
        </property>
+       <property name="textElideMode">
+        <enum>Qt::ElideLeft</enum>
+       </property>
        <property name="movement">
         <enum>QListView::Static</enum>
        </property>

@@ -246,6 +246,8 @@ private:
 
     QModelIndex* returnFirstChildIndex(const QString &path, QFileSystemModel *&model);
 
+    bool isUpdateDetailGalleryFinished;
+    bool isUpdateGalleryFinished;
     void beforCreateArticle();
     void cancelCreateArticle();
 

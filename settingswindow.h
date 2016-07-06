@@ -31,6 +31,13 @@ private:
     QPushButton* selectDirectoryBtn2;
     QPushButton* selectDirectoryBtn3;
     QPushButton* selectDirectoryBtn4;
+
+    QPushButton* resetCache;
+
+
+    QLabel* error1;
+    QLabel* error2;
+    QLabel* error3;
     int oldImageSize;
     /**
      * @brief imageSizeLabel люлбл для изменения размера изображений
@@ -47,6 +54,7 @@ signals:
 public slots:
     void confirm();
     void selectDirectoryBtnClickedSlot();
+    void resetCacheSlot();
 };
 
 #endif // SETTINGSWINDOW_H
