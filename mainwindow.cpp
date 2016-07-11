@@ -707,7 +707,7 @@ void MainWindow::add2ExistArticleSlot()
     if(article == "") {
         return;
     }
-    QDir existArticle (detailPath+"/"+this->ui->articleOutput->text()+"/"+this->ui->articleOutput->text());
+    QDir existArticle (detailPath+"/"+this->ui->articleOutput->text());
     if(!existArticle.exists() || this->ui->articleOutput->text().isEmpty()){
         showErrorWindow("Артикул еще не сохранен.\nВыделите нужные изображения и нажмите кнопку «Cохранить»");
         return;
