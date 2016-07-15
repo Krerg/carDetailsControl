@@ -934,6 +934,13 @@ void MainWindow::beforCreateArticle()
 {
     if(this->ui->detailCategory->currentIndex().isValid()) {
         if(this->editDetail == false) {
+            this->ui->articleOutput->setEnabled(true);
+            this->ui->costOutput->setEnabled(true);
+            this->ui->originaArtcileOutput->setEnabled(true);
+            this->ui->placeOutput->setEnabled(true);
+            this->ui->noteOutput->setEnabled(true);
+
+
             this->ui->articleOutput->setText("");
             this->ui->costOutput->setText("");
             this->ui->originaArtcileOutput->setText("");
@@ -958,7 +965,7 @@ void MainWindow::beforCreateArticle()
                      dir.mkpath(".");
                 } else {
                     showErrorWindow("Такой артикул уже есть");
-                    this->editDetail = false;
+                    //this->editDetail = false;
                     return;
                 }
                 QFile file(detailPath+"/"+this->ui->articleOutput->text()+"/"+this->ui->articleOutput->text()+".txt");
@@ -1016,6 +1023,12 @@ void MainWindow::cancelCreateArticle()
     this->editDetail = false;
     this->ui->createArticleButton->setText("Создать новый");
     this->ui->gallery->clearSelection();
+
+    this->ui->articleOutput->setEnabled(false);
+    this->ui->costOutput->setEnabled(false);
+    this->ui->originaArtcileOutput->setEnabled(false);
+    this->ui->placeOutput->setEnabled(false);
+    this->ui->noteOutput->setEnabled(false);
 }
 
 void MainWindow::openSettingsWindow()
