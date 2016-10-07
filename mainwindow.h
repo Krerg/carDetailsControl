@@ -185,6 +185,7 @@ private:
 
     QAction* renameDetailCategory;
 
+
     QAction* deleteDetailCategory;
 
     QWidget* createCarMakeWindow;
@@ -204,6 +205,10 @@ private:
     QAction* deleteImage;
 
     QAction* add2ExistArticle;
+
+    QAction* renameImage;
+
+    QAction* createImageFolder;
 
     QAction* returnImage;
 
@@ -302,6 +307,7 @@ public slots:
     void add2ExistArticleSlot();
     void hideImageSlot();
     void showImageSlot();
+    void renameImageSlot();
 
     void openSettingsWindow();
     void setSettings(QString path, QString galleryPath,

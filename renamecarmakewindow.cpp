@@ -1,8 +1,8 @@
 ﻿#include "renamecarmakewindow.h"
-#include "QVBoxLayout"
-#include <QDir>
-#include <QTextStream>
-#include <QDebug>
+    #include "QVBoxLayout"
+    #include <QDir>
+    #include <QTextStream>
+    #include <QDebug>
 
 RenameCarMakeWindow::RenameCarMakeWindow(QString path, QString oldName, QWidget *parent) :
     AbstractRenameWindow(parent)

@@ -31,6 +31,7 @@
 #include "imageviewer.h"
 #include "importfromexcelwindow.h"
 #include "movingariclesdialog.h"
+#include "renameitemingallerywindow.h"
 
 const QString MainWindow::NEW_STATE = "NEW";
 
@@ -85,7 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(createCarMake,SIGNAL(triggered()),this,SLOT(createCarMakeSlot()));
     this->renameCarMake = new QAction("Переименовать марку", requestCarMakeMenu);
     QObject::connect(renameCarMake, SIGNAL(triggered()),this,SLOT(renameCarMakeSlot()));
-    this->deleteCarMake = new QAction("Удалить марку машины",requestCarMakeMenu);
+    this->deleteCarMake = new QAction("Удалить марку",requestCarMakeMenu);
     QObject::connect(deleteCarMake,SIGNAL(triggered()),this,SLOT(deleteCarMakeSlot()));
     this->requestCarMakeMenu->addAction(createCarMake);
     this->requestCarMakeMenu->addAction(renameCarMake);
@@ -105,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->requestDetailCategoryMenu = new QMenu(this);
     this->createDetailCategory = new QAction("Добавить категорию", requestDetailCategoryMenu);
     QObject::connect(createDetailCategory,SIGNAL(triggered()),this,SLOT(createDetailCategorySlot()));
-    this->renameDetailCategory = new QAction("Переименовать",requestDetailCategoryMenu);
+    this->renameDetailCategory = new QAction("Переименовать категорию",requestDetailCategoryMenu);
     QObject::connect(renameDetailCategory,SIGNAL(triggered()),this,SLOT(renameDetailCategorySlot()));
     this->deleteDetailCategory = new QAction("Удалить категорию",requestDetailCategoryMenu);
     QObject::connect(deleteDetailCategory,SIGNAL(triggered()),this,SLOT(deleteDetailCategorySlot()));
@@ -114,7 +115,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->requestDetailCategoryMenu->addAction(deleteDetailCategory);
 
     this->requestDetailMenu = new QMenu(this);
-    this->createDetail = new QAction("Добавить делать",requestDetailMenu);
+    this->createDetail = new QAction("Добавить деталь",requestDetailMenu);
     QObject::connect(createDetail,SIGNAL(triggered()),this,SLOT(createDetailSlot()));
     this->renameDetail = new QAction("Переименовать деталь",requestDetailMenu);
     QObject::connect(renameDetail,SIGNAL(triggered()),this,SLOT(renameDetailSlot()));
@@ -129,16 +130,19 @@ MainWindow::MainWindow(QWidget *parent) :
     this->changeArticle = new QAction("Изменить артикул",requestDetailArticleMenu);
 
     this->requestGalleryMenu = new QMenu(this);
-    this->deleteImage = new QAction("Удалить изображене", requestGalleryMenu);
+    this->deleteImage = new QAction("Удалить", requestGalleryMenu);
     QObject::connect(deleteImage,SIGNAL(triggered()),this,SLOT(deleteImageSlot()));
     this->add2ExistArticle = new QAction("Добавить к артиклю",requestGalleryMenu);
     QObject::connect(add2ExistArticle,SIGNAL(triggered()),this,SLOT(add2ExistArticleSlot()));
+    this->renameImage = new QAction("Переименовать",requestGalleryMenu);
+    QObject::connect(renameImage,SIGNAL(triggered()),this,SLOT(renameImageSlot()));
 
     this->requestDetailGalleryMenu = new QMenu(this);
     this->returnImage = new QAction("Вернуть изображение",requestDetailGalleryMenu);
     this->setMainImage = new QAction("Установить первым",requestDetailGalleryMenu);
     this->hideImage = new QAction("Пометить как скрытые",requestDetailGalleryMenu);
     this->showImage = new QAction("Убрать из скрытых",requestDetailGalleryMenu);
+
     QObject::connect(returnImage,SIGNAL(triggered()),this,SLOT(returnImageSlot()));
     QObject::connect(setMainImage,SIGNAL(triggered()),this,SLOT(setMainImageSlot()));
     QObject::connect(hideImage,SIGNAL(triggered()),this,SLOT(hideImageSlot()));
@@ -163,7 +167,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->detailArticle->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(ui->detailArticle,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(menuRequestDetailArticle(QPoint)));
-    //кстановка фильтров на папки
+
+    //установка фильтров на папки
     fileModelCarMake->setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
     fileModelCarModel->setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
     fileModelDetailCategory->setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
@@ -185,9 +190,6 @@ MainWindow::MainWindow(QWidget *parent) :
     fileModelCarMake->setRootPath(globalPath);
     ui->carMake->setModel(fileModelCarMake);
     ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
-
-
-
 
     QObject::connect(this->ui->carMake,SIGNAL(clicked(QModelIndex)),this,SLOT(carMakeChanged(QModelIndex)));
     QObject::connect(this->ui->carModel,SIGNAL(clicked(QModelIndex)),this,SLOT(carModelChanged(QModelIndex)));
@@ -227,6 +229,7 @@ MainWindow::MainWindow(QWidget *parent) :
         out << globalPath << endl;
         out << galleryPath << endl;
     }
+    ui->label_16->setText("Путь к галлерее: "+galleryPath);
     //galleryPath.replace("\\","/");
     currentGalleryPath = galleryPath;
     this->setSettings(globalPath,galleryPath,pathTofiles,pathToSiteFiles,imageSize);
@@ -244,6 +247,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ArticleCounterThread* thred = new ArticleCounterThread(globalPath);
     connect(thred,SIGNAL(sendCount(int)),this,SLOT(setArticleCountSlot(int)));
     thred->start();
+
+
 
 }
 
@@ -510,10 +515,13 @@ void MainWindow::menuRequestGallery(QPoint pos)
 {
     requestGalleryMenu->removeAction(deleteImage);
     requestGalleryMenu->removeAction(add2ExistArticle);
+    requestGalleryMenu->removeAction(renameImage);
     if(ui->gallery->indexAt(pos).row()>=0)
     {
+        ui->gallery->setCurrentRow(ui->gallery->indexAt(pos).row());
         requestGalleryMenu->addAction(deleteImage);
         requestGalleryMenu->addAction(add2ExistArticle);
+        requestGalleryMenu->addAction(renameImage);
     }
     requestGalleryMenu->popup(ui->gallery->viewport()->mapToGlobal(pos));
 
@@ -562,7 +570,6 @@ void MainWindow::createCarModelSlot()
 
 void MainWindow::renameCarModelSlot()
 {
-
     QString path2Model = globalPath+"/"+this->ui->carMake->selectionModel()->selectedIndexes().at(0).data().toString();
     RenameCarMakeWindow* rcmw = new RenameCarMakeWindow(path2Model,this->ui->carModel->selectionModel()->selectedIndexes().at(0).data().toString());
     QObject::connect(rcmw,SIGNAL(updateArticlesInfos()),this,SLOT(updateArticlesInfosFiles()));
@@ -692,11 +699,15 @@ void MainWindow::deleteImageSlot()
     QList<QListWidgetItem*>::Iterator i;
     for(i=files.begin();i!=files.end();i++)
     {
+        qDebug()<<(*i)->text();
         QFile f(currentGalleryPath+"/"+(*i)->text());
         f.remove();
+        QDir dir(currentGalleryPath+"/"+(*i)->text());
+        dir.removeRecursively();
         this->ui->gallery->removeItemWidget((*i));
         delete (*i);
     }
+    updateGallery();
 }
 
 void MainWindow::add2ExistArticleSlot()
@@ -735,6 +746,7 @@ void MainWindow::add2ExistArticleSlot()
     updateDetailGallery(detailArticlePath);
 }
 
+
 void MainWindow::hideImageSlot()
 {
 
@@ -763,6 +775,15 @@ void MainWindow::showImageSlot()
     }
     updateDetailGallery(detailArticlePath);
 }
+
+void MainWindow::renameImageSlot()
+{
+    RenameItemInGalleryWindow* riigw = new RenameItemInGalleryWindow(currentGalleryPath,this->ui->gallery->selectedItems().at(0)->text());
+    QObject::connect(riigw,SIGNAL(updateGallerySignal()),this,SLOT(on_pushButton_clicked()));
+    riigw->show();
+}
+
+
 
 void MainWindow::deleteCarModelSlot()
 {

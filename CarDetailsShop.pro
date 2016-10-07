@@ -36,7 +36,8 @@ SOURCES += main.cpp\
     findarticleswindow.cpp \
     articlegalleryupdatethread.cpp \
     movingariclesdialog.cpp \
-    articlecounterthread.cpp
+    articlecounterthread.cpp \
+    renameitemingallerywindow.cpp
 
 HEADERS  += mainwindow.h \
     createcarmakewindow.h \
@@ -62,7 +63,8 @@ HEADERS  += mainwindow.h \
     findarticleswindow.h \
     articlegalleryupdatethread.h \
     movingariclesdialog.h \
-    articlecounterthread.h
+    articlecounterthread.h \
+    renameitemingallerywindow.h
 
 FORMS    += mainwindow.ui
 include(3rdparty\QtXlsxWriter-master\src\xlsx\qtxlsx.pri)
