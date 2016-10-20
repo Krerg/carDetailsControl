@@ -251,6 +251,8 @@ private:
 
     QModelIndex* returnFirstChildIndex(const QString &path, QFileSystemModel *&model);
 
+    QFileSystemModel* filemodel;
+
     int articleCount;
 
 

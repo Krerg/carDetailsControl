@@ -244,6 +244,12 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->carMake->setRootIndex(fileModelCarMake->index(globalPath));
     }
     this->articleCount = 0;
+
+    filemodel = new QFileSystemModel(this);
+    filemodel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
+    ui->galleryFilesList->setModel(filemodel);
+    ui->galleryFilesList->setRootIndex(filemodel->setRootPath(galleryPath));
+
     ArticleCounterThread* thred = new ArticleCounterThread(globalPath);
     connect(thred,SIGNAL(sendCount(int)),this,SLOT(setArticleCountSlot(int)));
     thred->start();
@@ -1143,20 +1149,39 @@ void MainWindow::updateArticleGalleryFileNames()
 
 void MainWindow::saveSizes(QTextStream* stream)
 {
-    QList<int> fileSystemWidgets = this->ui->splitter->sizes();
+    QList<int> fileSystemWidgets = this->ui->splitter_6->sizes();
+    int count=0;
     foreach (int size, fileSystemWidgets) {
         *stream<<size<<endl;
+        count++;
     }
-
-    fileSystemWidgets = this->ui->splitter_2->sizes();
+    qDebug()<<count;
+    count=0;
+    fileSystemWidgets = this->ui->splitter_5->sizes();
     foreach (int size, fileSystemWidgets) {
         *stream<<size<<endl;
+        count++;
     }
+    qDebug()<<count;
+    count=0;
 
     fileSystemWidgets = this->ui->splitter_3->sizes();
     foreach (int size, fileSystemWidgets) {
-        *stream<<size<<endl;
+        *stream<<size<<endl;count++;
     }
+    qDebug()<<count;
+    count=0;
+    fileSystemWidgets = this->ui->splitter_2->sizes();
+    foreach (int size, fileSystemWidgets) {
+        *stream<<size<<endl;count++;
+    }
+    qDebug()<<count;
+    count=0;
+    fileSystemWidgets = this->ui->splitter->sizes();
+    foreach (int size, fileSystemWidgets) {
+        *stream<<size<<endl;count++;
+    }
+    qDebug()<<count;
 }
 
 void MainWindow::saveSelectedValues()
@@ -1316,6 +1341,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
     }
     sizeFile.open(QIODevice::ReadWrite | QFile::Append | QFile::Text);
     QTextStream out(&sizeFile);
+    qDebug()<<this->height();
+    qDebug()<<this->width();
     out<<this->height()<<endl;
     out<<this->width()<<endl;
     saveSizes(&out);
@@ -1324,16 +1351,6 @@ void MainWindow::closeEvent(QCloseEvent *e)
     e->accept();
     savedIndexes->close();
 }
-
-//void MainWindow::dropEvent(QDropEvent *e)
-//{
-//    qDebug() << "dropEvent";
-//}
-
-//void MainWindow::dragEnterEvent(QDragEnterEvent *e)
-//{
-//    qDebug() << "dragEnterEvent";
-//}
 
 void MainWindow::applySavedValues()
 {
@@ -1436,19 +1453,18 @@ void MainWindow::initWindowSize()
         int i;
         QString widgetSize;
         QList<int> fileSystemWidgetsSize;
-        for(i = 0;i<5;i++) {
+        for(i = 0;i<2;i++) {
             widgetSize = out.readLine();
             fileSystemWidgetsSize.append(widgetSize.toInt());
         }
-        this->ui->splitter->setSizes(fileSystemWidgetsSize);
+        this->ui->splitter_6->setSizes(fileSystemWidgetsSize);
 
         QList<int> leftPanelWidgetsSize;
-        for(i = 0;i<3;i++) {
+        for(i = 0;i<2;i++) {
             widgetSize = out.readLine();
             leftPanelWidgetsSize.append(widgetSize.toInt());
         }
-        this->ui->splitter_2->setSizes(leftPanelWidgetsSize);
-        sizeFile.close();
+        this->ui->splitter_5->setSizes(leftPanelWidgetsSize);
 
         QList<int> leftAndRightPanelsSize;
         for(i = 0;i<3;i++) {
@@ -1456,6 +1472,19 @@ void MainWindow::initWindowSize()
             leftAndRightPanelsSize.append(widgetSize.toInt());
         }
         this->ui->splitter_3->setSizes(leftAndRightPanelsSize);
+
+        QList<int> splitter2;
+        for(i = 0;i<2;i++) {
+            widgetSize = out.readLine();
+            splitter2.append(widgetSize.toInt());
+        }
+        this->ui->splitter_2->setSizes(splitter2);
+        QList<int> splitter;
+        for(i = 0;i<5;i++) {
+            widgetSize = out.readLine();
+            splitter.append(widgetSize.toInt());
+        }
+        this->ui->splitter->setSizes(splitter);
         sizeFile.close();
     } else {
         return;
