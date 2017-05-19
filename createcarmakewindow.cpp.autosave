@@ -23,7 +23,7 @@ void CreateCarMakeWindow::setPath(QString path)
 
 void CreateCarMakeWindow::createCarMake()
 {
-    QDir dir(this->path+carMakeName->text().simplified());
+    QDir dir(this->path+carMakeName->text().simplified().replace("/", "."));
     if (!dir.exists()) {
         dir.mkpath(".");
     }

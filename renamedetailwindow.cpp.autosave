@@ -44,7 +44,7 @@ void RenameDetailWindow::renameDetailSlot()
     QDir tmpDir;
     QString oldPath;
     QString newPath;
-    QString newDetail = detailNameInput->text().simplified();
+    QString newDetail = detailNameInput->text().simplified().replace("/", ".");
     foreach(QString dirName, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
 
         carModelDir.setPath(path+"/"+dirName);

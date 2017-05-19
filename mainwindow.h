@@ -144,8 +144,10 @@ private:
     QFileSystemModel *fileDetailArticle;
 
     QMenu* service;
+    QMenu* servicePath;
 
     QMenuBar* menuBar;
+    QMenuBar* disabledMenuBar;
 
     QAction* settings;
 
@@ -167,6 +169,8 @@ private:
 
     QMenu* requestGalleryMenu;
 
+    bool isBackPushed;
+
     QMenu* requestDetailGalleryMenu;
 
     QAction* createCarMake;
@@ -184,7 +188,6 @@ private:
     QAction* createDetailCategory;
 
     QAction* renameDetailCategory;
-
 
     QAction* deleteDetailCategory;
 
@@ -229,6 +232,7 @@ private:
     QList<QListWidgetItem*>* images;
 
     QList<QListWidgetItem*>* articleImages;
+    QList<QModelIndex>* history;
 
     /**
      * @brief imageSize размер изображений
@@ -250,7 +254,7 @@ private:
     QFile* savedIndexes;
 
     QModelIndex* returnFirstChildIndex(const QString &path, QFileSystemModel *&model);
-
+    //QList<Integer> *list;
     QFileSystemModel* filemodel;
 
     int articleCount;
@@ -268,7 +272,12 @@ public slots:
     void carDetailChanged(QModelIndex);
     void carDetailArticleChanged(QModelIndex);
 
+    void selectRowSlot(QString);
+
     void openImage(QModelIndex);
+    void selectAndOpen(QModelIndex);
+    void selectFromListToGallery(QModelIndex);
+    void selectFromGalleryToList(QModelIndex);
     void openArticleImage(QModelIndex);
 
     void menuRequestCarMake(QPoint pos);
@@ -306,6 +315,7 @@ public slots:
     void returnImageSlot();
     void setMainImageSlot();
     void deleteImageSlot();
+    void deleteImageSlotSlot();
     void add2ExistArticleSlot();
     void hideImageSlot();
     void showImageSlot();

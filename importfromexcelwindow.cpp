@@ -17,7 +17,7 @@ ImportFromExcelWindow::ImportFromExcelWindow(QString path, QMap<QString, QString
     mainLayout->addLayout(loadCarModelsFileLayout);
     mainLayout->addLayout(loadDetailsFileLayout);
 
-    choosedCarModelsFile = new QLabel("Файл Марки-Модели не выбран");
+    choosedCarModelsFile = new QLabel("Файл структуры не выбран");
     chooseCarModelsFileButton = new QPushButton("Выбрать файл");
 
     choosedDetailsFile = new QLabel("Файл Разделы-Детали не выбран");
@@ -26,8 +26,8 @@ ImportFromExcelWindow::ImportFromExcelWindow(QString path, QMap<QString, QString
     loadCarModelsFileLayout->addWidget(choosedCarModelsFile);
     loadCarModelsFileLayout->addWidget(chooseCarModelsFileButton);
 
-    loadDetailsFileLayout->addWidget(choosedDetailsFile);
-    loadDetailsFileLayout->addWidget(chooseDetailsFileButton);
+    //loadDetailsFileLayout->addWidget(choosedDetailsFile);
+    //loadDetailsFileLayout->addWidget(chooseDetailsFileButton);
 
     proceedButton = new QPushButton("Загрузить данные");
     mainLayout->addWidget(proceedButton);
@@ -54,7 +54,6 @@ void ImportFromExcelWindow::chooseDetailFilePath()
     QFile f1(fileDialog.getOpenFileName());
     QFileInfo fi1(f1);
     detailsFilePath = fi1.absoluteFilePath();
-
     if(fi1.fileName()!="") {
         choosedDetailsFile->setText(fi1.fileName());
     }
@@ -62,7 +61,7 @@ void ImportFromExcelWindow::chooseDetailFilePath()
 
 void ImportFromExcelWindow::loadFromExcel()
 {
-    if(carModelsFilePath=="" || detailsFilePath=="") {
+    if(carModelsFilePath=="") {
         return;
     }
 
@@ -84,12 +83,15 @@ void ImportFromExcelWindow::loadFromExcel()
     }
     detailsMap->clear();
 
-    QXlsx::Document detailsExcelFile(detailsFilePath);
+//    QXlsx::Document detailsExcelFile(detailsFilePath);
+    QXlsx::Document carModelsExcelFile(carModelsFilePath);
     QString detailCategory;
     QString detail;
     int row = 1;
     while(true) {
-        detailCategory = detailsExcelFile.read(row,1).toString();
+
+        detailCategory = carModelsExcelFile.read(row,3).toString();
+        qDebug()<<detailCategory;
         if(detailCategory=="") {
             break;
         }
@@ -97,14 +99,14 @@ void ImportFromExcelWindow::loadFromExcel()
             detailsMap->insert(detailCategory, new QStringList());
         }
 
-        detail = detailsExcelFile.read(row,2).toString();
+        detail = carModelsExcelFile.read(row,4).toString();
         detailsMap->value(detailCategory)->append(detail);
 
         row++;
     }
 
-    QXlsx::Document carModelsExcelFile(carModelsFilePath);
-    row=2;
+    //QXlsx::Document carModelsExcelFile(carModelsFilePath);
+    row=1;
     QString carMake;
     QString carModel;
 

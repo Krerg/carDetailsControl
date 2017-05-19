@@ -22,7 +22,7 @@ RenameCarMakeWindow::RenameCarMakeWindow(QString path, QString oldName, QWidget 
 void RenameCarMakeWindow::renameCarMakeSlot()
 {
     QDir dir;
-    QString newNameText = newName->text().simplified();
+    QString newNameText = newName->text().simplified().replace("/", ".");
     bool sucessful = dir.rename(path+"/"+oldName,path+"/"+newNameText);
 
     qDebug()<<"Renaiming "<<path+"/"+oldName<<" into "<<path+"/"+newNameText<<" is "<<sucessful;

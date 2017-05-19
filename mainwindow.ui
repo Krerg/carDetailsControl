@@ -25,42 +25,53 @@
   <layout class="QGridLayout" name="gridLayout_4">
    <item row="0" column="0">
     <widget class="QSplitter" name="splitter_6">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <widget class="QWidget" name="">
+     <property name="opaqueResize">
+      <bool>true</bool>
+     </property>
+     <property name="handleWidth">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QGridLayout" name="gridLayout_2">
        <property name="sizeConstraint">
         <enum>QLayout::SetMinAndMaxSize</enum>
        </property>
+       <property name="spacing">
+        <number>3</number>
+       </property>
        <item row="0" column="0">
         <spacer name="horizontalSpacer">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeType">
           <enum>QSizePolicy::Fixed</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>694</width>
-           <height>17</height>
+           <width>1024</width>
+           <height>10</height>
           </size>
          </property>
         </spacer>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_16">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>21</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>
@@ -148,60 +159,6 @@
            <number>4</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_3">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>16</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Категория деталей&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QListView" name="detailCategory">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>2000</width>
-              <height>2000</height>
-             </size>
-            </property>
-            <property name="baseSize">
-             <size>
-              <width>0</width>
-              <height>300</height>
-             </size>
-            </property>
-            <property name="sizeAdjustPolicy">
-             <enum>QAbstractScrollArea::AdjustToContents</enum>
-            </property>
-            <property name="batchSize">
-             <number>50</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="layoutWidget">
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <item>
            <widget class="QLabel" name="label_2">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -251,12 +208,12 @@
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget">
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="spacing">
            <number>4</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_13">
+           <widget class="QLabel" name="label_3">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -270,12 +227,12 @@
              </size>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Артикул&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Категория деталей&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QListView" name="detailArticle">
+           <widget class="QListView" name="detailCategory">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -297,15 +254,15 @@
             <property name="sizeAdjustPolicy">
              <enum>QAbstractScrollArea::AdjustToContents</enum>
             </property>
-            <property name="selectionMode">
-             <enum>QAbstractItemView::ExtendedSelection</enum>
+            <property name="batchSize">
+             <number>50</number>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
         <widget class="QWidget" name="layoutWidget">
-         <layout class="QVBoxLayout" name="verticalLayout">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
           <property name="spacing">
            <number>4</number>
           </property>
@@ -356,6 +313,60 @@
             </property>
             <property name="sizeAdjustPolicy">
              <enum>QAbstractScrollArea::AdjustToContents</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="layoutWidget">
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_13">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>16</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Артикул&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListView" name="detailArticle">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>2000</width>
+              <height>2000</height>
+             </size>
+            </property>
+            <property name="baseSize">
+             <size>
+              <width>0</width>
+              <height>300</height>
+             </size>
+            </property>
+            <property name="sizeAdjustPolicy">
+             <enum>QAbstractScrollArea::AdjustToContents</enum>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::ExtendedSelection</enum>
             </property>
            </widget>
           </item>
@@ -686,7 +697,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>500</width>
+           <width>400</width>
            <height>0</height>
           </size>
          </property>
@@ -696,11 +707,50 @@
            <height>16777215</height>
           </size>
          </property>
+         <property name="autoScrollMargin">
+          <number>1</number>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>180</width>
+           <height>180</height>
+          </size>
+         </property>
+         <property name="textElideMode">
+          <enum>Qt::ElideMiddle</enum>
+         </property>
+         <property name="movement">
+          <enum>QListView::Static</enum>
+         </property>
+         <property name="resizeMode">
+          <enum>QListView::Adjust</enum>
+         </property>
+         <property name="layoutMode">
+          <enum>QListView::Batched</enum>
+         </property>
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <property name="viewMode">
+          <enum>QListView::IconMode</enum>
+         </property>
+         <property name="uniformItemSizes">
+          <bool>false</bool>
+         </property>
+         <property name="batchSize">
+          <number>1</number>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
         </widget>
-        <widget class="QListView" name="galleryFilesList">
+        <widget class="QTreeView" name="galleryFilesList">
          <property name="minimumSize">
           <size>
-           <width>150</width>
+           <width>250</width>
            <height>0</height>
           </size>
          </property>
@@ -721,8 +771,8 @@
          </property>
          <property name="iconSize">
           <size>
-           <width>100</width>
-           <height>100</height>
+           <width>50</width>
+           <height>50</height>
           </size>
          </property>
          <property name="textElideMode">
@@ -883,7 +933,6 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <tabstops>
-  <tabstop>detailCategory</tabstop>
   <tabstop>makeOutput</tabstop>
   <tabstop>modelOutput</tabstop>
   <tabstop>categoryOutput</tabstop>
@@ -892,9 +941,7 @@
   <tabstop>originaArtcileOutput</tabstop>
   <tabstop>placeOutput</tabstop>
   <tabstop>noteOutput</tabstop>
-  <tabstop>detailArticle</tabstop>
   <tabstop>gallery</tabstop>
-  <tabstop>carModel</tabstop>
  </tabstops>
  <resources>
   <include location="resource.qrc"/>

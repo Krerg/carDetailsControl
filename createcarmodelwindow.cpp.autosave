@@ -33,7 +33,7 @@ void CreateCarModelWindow::createCarModel()
     QStringList::Iterator listIterator;
     QMap<QString, QStringList*>::const_iterator i = detailsMap->begin();
     while(i != detailsMap->constEnd()) {
-        dir.setPath(this->path+carModelName->text().simplified()+"/"+i.key());
+        dir.setPath(this->path+carModelName->text().simplified().replace("/", ".")+"/"+i.key());
         if (!dir.exists()) {
             dir.mkpath(".");
         }

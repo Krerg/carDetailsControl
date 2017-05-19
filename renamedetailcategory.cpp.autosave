@@ -37,7 +37,7 @@ void RenameDetailCategory::renameDetailCategorySlot()
     QDir carModelDir;
     QDir detailCategoryDir; //detail category
     QDir tmpDir;
-    QString newDetailCategory = detailCategoryInput->text().simplified();
+    QString newDetailCategory = detailCategoryInput->text().simplified().replace("/", ".");
     foreach(QString dirName, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
     {
         carModelDir.setPath(path+"/"+dirName);
