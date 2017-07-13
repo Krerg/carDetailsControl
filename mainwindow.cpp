@@ -36,6 +36,7 @@
 #include "renameitemingallerywindow.h"
 
 const QString MainWindow::NEW_STATE = "NEW";
+const QString MainWindow::EXPORTED_STATE = "EXPORTED";
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),

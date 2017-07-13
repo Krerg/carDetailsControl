@@ -27,6 +27,7 @@ public:
     ~MainWindow();
 
     static const QString NEW_STATE;
+    static const QString EXPORTED_STATE;
 
 protected:
     void keyPressEvent(QKeyEvent* event);

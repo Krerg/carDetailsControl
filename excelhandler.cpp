@@ -47,7 +47,7 @@ bool ExcelHandler::checkState(QString path)
          state = stream.readLine();
          state = stream.readLine();
          state = stream.readLine();
-         state = stream.readLine();
+         state = stream.readLine();//new_state
           file.close();
          if(state.compare(MainWindow::NEW_STATE)) {
             return true;
@@ -67,11 +67,15 @@ QString ExcelHandler::setImgPath(QString imgPath)
 
 void ExcelHandler::exportAllToExcel()
 {
+    QDir outputFolder(outputExcelFile->text().replace(".xlsx", ""));
     QFile outputFile(outputExcelFile->text());
-    if(outputFile.exists()) {
-        outputFile.remove();
+    if(outputFolder.exists()) {
+
+    }else{
+        outputFolder.mkdir(outputExcelFile->text());
     }
-    QXlsx::Document excelFile(outputExcelFile->text());
+
+    QXlsx::Document excelFile(outputFolder.absolutePath()+"/"+outputExcelFile->text());
     //шапка эксель файла
     excelFile.write("A1","IE_NAME");//detail
     excelFile.write("B1","IE_PREVIEW_TEXT");//preview
@@ -96,7 +100,18 @@ void ExcelHandler::exportAllToExcel()
 
     //проверяем папку для выгрузки
     QDir imageOutDir(pathToFiles);
+
+    qDebug()<<pathToFiles;
+
     if(!imageOutDir.exists()) {
+
+        imageOutDir.mkpath(".");
+//        imageOutDir.mkdir();
+//        imageOutDir.setPath(outputFolder.path());
+    }
+    imageOutDir.setPath(imageOutDir.path()+"/"+outputFolder.path());
+    qDebug()<<imageOutDir.absolutePath();
+    if(!imageOutDir.exists()){
         imageOutDir.mkpath(".");
     }
 
@@ -138,8 +153,20 @@ void ExcelHandler::exportAllToExcel()
                                 if(!isWritten){
                                     QFile desc(imageDir.path()+"/"+article+".txt");
                                     QString original;
-                                    if(desc.open(QIODevice::ReadOnly)) {
+                                    if(desc.open(QIODevice::ReadWrite)) {
+                                        //changing new_state to exported_state
                                         QTextStream in(&desc);
+                                        //in.setCodec("Windows-1251");
+
+                                        QString text; // add to text string for easy string replace
+//                                        while(!in.atEnd())
+//                                            text.append(in.readLine())
+                                        text=in.readAll();
+                                        text.replace(QString(MainWindow::NEW_STATE), QString(MainWindow::EXPORTED_STATE)); // replace text in string
+//                                        desc.seek(0); // go to the beginning of the file
+                                        in.seek(0);
+                                        in<<text;
+                                        in.seek(0);
                                         for(int i=0;i<5;i++) {
                                             in.readLine();
                                         }
