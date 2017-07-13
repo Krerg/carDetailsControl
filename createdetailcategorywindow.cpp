@@ -43,13 +43,13 @@ void CreateDetailCategoryWindow::createDetailCategory()
         temp1.setPath(path+"/"+dirName);
         foreach (QString dirName2, temp1.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
         {
-            temp2.setPath(temp1.path()+"/"+dirName2+"/"+categoryName->text().simplified());
+            temp2.setPath(temp1.path()+"/"+dirName2+"/"+categoryName->text().simplified().replace("\\", ".").replace("/", "-"));
             if (!temp2.exists()) {
                 temp2.mkpath(".");
             }
         }
     }
-    this->map->insert(categoryName->text(),new QStringList());
+    this->map->insert(categoryName->text().simplified().replace("\\", ".").replace("/", "-"),new QStringList());
     this->close();
     delete this;
 }

@@ -63,6 +63,7 @@ public slots:
     void chooseDetailFilePath();
 
     void loadFromExcel();
+    QString reformatString(QString);
 
 };
 

@@ -24,7 +24,7 @@ void CreateCarModelWindow::setPath(QString path)
 
 void CreateCarModelWindow::createCarModel()
 {
-    QDir dir(this->path+carModelName->text());
+    QDir dir(this->path+carModelName->text().simplified().replace("\\", ".").replace("/", "-"));
     QDir temp;
     if (!dir.exists()) {
         dir.mkpath(".");
@@ -33,7 +33,13 @@ void CreateCarModelWindow::createCarModel()
     QStringList::Iterator listIterator;
     QMap<QString, QStringList*>::const_iterator i = detailsMap->begin();
     while(i != detailsMap->constEnd()) {
-        dir.setPath(this->path+carModelName->text().simplified()+"/"+i.key());
+
+        dir.setPath(this->path+carModelName->text().simplified().replace("\\", ".").replace("/", "-")+"/"+i.key());
+//        if(dir.path().contains("chevrolete")){
+//            qDebug()<<dir.path();
+//            qDebug()<<dir.path().replace("\\", "-");
+//            qDebug()<<dir.path().replace("/", "-");
+//        }
         if (!dir.exists()) {
             dir.mkpath(".");
         }

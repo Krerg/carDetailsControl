@@ -59,6 +59,10 @@ void ImportFromExcelWindow::chooseDetailFilePath()
     }
 }
 
+QString ImportFromExcelWindow::reformatString(QString s){
+    return s.simplified().replace("\\", "-").replace("/", "-");
+}
+
 void ImportFromExcelWindow::loadFromExcel()
 {
     if(carModelsFilePath=="") {
@@ -90,8 +94,7 @@ void ImportFromExcelWindow::loadFromExcel()
     int row = 1;
     while(true) {
 
-        detailCategory = carModelsExcelFile.read(row,3).toString();
-        qDebug()<<detailCategory;
+        detailCategory = reformatString(carModelsExcelFile.read(row,3).toString());
         if(detailCategory=="") {
             break;
         }
@@ -99,7 +102,7 @@ void ImportFromExcelWindow::loadFromExcel()
             detailsMap->insert(detailCategory, new QStringList());
         }
 
-        detail = carModelsExcelFile.read(row,4).toString();
+        detail = reformatString(carModelsExcelFile.read(row,4).toString());
         detailsMap->value(detailCategory)->append(detail);
 
         row++;
@@ -111,7 +114,7 @@ void ImportFromExcelWindow::loadFromExcel()
     QString carModel;
 
     while(true) {
-        carMake = carModelsExcelFile.read(row,1).toString();
+        carMake = reformatString(carModelsExcelFile.read(row,1).toString());
         if(carMake=="") {
             break;
         }
@@ -121,7 +124,7 @@ void ImportFromExcelWindow::loadFromExcel()
             tmpDir.mkpath(".");
         }
 
-        carModel = carModelsExcelFile.read(row,2).toString();
+        carModel = reformatString(carModelsExcelFile.read(row,2).toString());
         QDir tmpDir2(path+"/"+carMake+"/"+carModel);
         if(!tmpDir2.exists()) {
             tmpDir2.mkpath(".");
@@ -150,3 +153,5 @@ void ImportFromExcelWindow::loadFromExcel()
     this->close();
     delete this;
 }
+
+

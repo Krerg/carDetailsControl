@@ -42,10 +42,10 @@ void CreateDetailWindow::createDetail()
         temp1.setPath(path+"/"+dirName);
         foreach (QString dirName2, temp1.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             temp2.setPath(temp1.path()+"/"+dirName2);
-            temp3.setPath(temp2.path()+"/"+selectedCategory+"/"+detailName->text().simplified());
+            temp3.setPath(temp2.path()+"/"+selectedCategory+"/"+detailName->text().simplified().replace("\\", ".").replace("/", "-"));
             if(!temp3.exists()) {
                 temp3.mkpath(".");
-                this->map->value(selectedCategory)->append(detailName->text());
+                this->map->value(selectedCategory)->append(detailName->text().simplified().replace("\\", ".").replace("/", "-"));
             }
     }
 }

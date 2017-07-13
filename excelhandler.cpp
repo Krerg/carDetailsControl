@@ -12,7 +12,7 @@ ExcelHandler::ExcelHandler(QString path, QString pathToFiles, QString pathToSite
     this->path = path;
     QVBoxLayout* v = new QVBoxLayout(this);
     this->outputFileLabel = new QLabel("Выходной файл");
-    this->outputExcelFile = new QLineEdit("output.xlsx");
+    this->outputExcelFile = new QLineEdit("_output.xlsx");
     this->confirmButton = new QPushButton("Экспорт");
     this->exportNewButton = new QPushButton("Экспорт новых артикулов");
 
@@ -73,17 +73,26 @@ void ExcelHandler::exportAllToExcel()
     }
     QXlsx::Document excelFile(outputExcelFile->text());
     //шапка эксель файла
-    excelFile.write("A1","IE_NAME");
-    excelFile.write("B1","IE_PREVIEW_TEXT");
-    excelFile.write("C1","IP_PROP18");
-    excelFile.write("D1","IC_GROUP0");
-    excelFile.write("E1","IC_GROUP1");
-    excelFile.write("F1","IC_GROUP2");
-    excelFile.write("G1","CV_PRICE_1");
-    excelFile.write("H1","IE_DETAIL_PICTURE");
-    excelFile.write("I1","IP_PROP23");
-    excelFile.write("J1","IP_PROP26");
-    excelFile.write("K1","IP_PROP32");
+    excelFile.write("A1","IE_NAME");//detail
+    excelFile.write("B1","IE_PREVIEW_TEXT");//preview
+    excelFile.write("C1","IP_PROP18");//article
+    excelFile.write("D1","IC_GROUP0");//carMark
+    excelFile.write("E1","IC_GROUP1");//carModel
+    excelFile.write("F1","IC_GROUP2");//detailcategory
+    excelFile.write("G1","CV_PRICE_1");//цена
+    excelFile.write("H1","IE_DETAIL_PICTURE");//mainImage
+    excelFile.write("I1","IP_PROP23");//image
+    excelFile.write("J1","IP_PROP26");//место на складе
+    excelFile.write("K1","IP_PROP32");//оригинальный артикул
+
+
+    excelFile.write("L1","IE_DETAIL_TEXT");
+    excelFile.write("M1","meta_title");
+    excelFile.write("N1","meta_keywords");
+    excelFile.write("O1","meta_description");
+    excelFile.write("P1","IE_XML_ID");
+    excelFile.write("Q1", "comment");//комментарий
+
 
     //проверяем папку для выгрузки
     QDir imageOutDir(pathToFiles);
@@ -120,37 +129,68 @@ void ExcelHandler::exportAllToExcel()
                         if(!exportAll && checkState(imageDir.path()+"/"+article+".txt")) {
                             continue;
                         }
+                        bool isWritten=false;
                         foreach(QString image,imageDir.entryList(QDir::Files | QDir::NoDotAndDotDot)) {
-                            if(!image.contains(QRegExp("(\.txt)|(\[H\])"))) {
-                                if(mainImage=="") {
-                                    mainImage=image;
-                                    QFile::copy(imageDir.path()+"/"+mainImage,imageOutDir.path()+"/"+mainImage);
-                                    continue;
-                                }
+                            QRegExp *re= new QRegExp();
+                            re->setPattern(".*(\.(txt|jpg|png|gif|bmp))");
+                            if(re->exactMatch(image.toLower())){//|(\[H\])
+                                qDebug()<<imageDir.path()<<"<<"<<image;
+                                if(!isWritten){
+                                    QFile desc(imageDir.path()+"/"+article+".txt");
+                                    QString original;
+                                    if(desc.open(QIODevice::ReadOnly)) {
+                                        QTextStream in(&desc);
+                                        for(int i=0;i<5;i++) {
+                                            in.readLine();
+                                        }
+                                        excelFile.write(QString("G%1").arg(currentExcelRow),in.readLine());//price
+                                        //in.readLine();
+                                        original = in.readLine();
+                                        excelFile.write(QString("K%1").arg(currentExcelRow),original);//оригинальный артикул
+                                        excelFile.write(QString("J%1").arg(currentExcelRow),in.readLine());//место на складе
+                                        excelFile.write(QString("Q%1").arg(currentExcelRow),in.readLine());//заметка
 
-                                excelFile.write(QString("I%1").arg(currentExcelRow),setImgPath(imageDir.path())+"/"+image);
-                                excelFile.write(QString("H%1").arg(currentExcelRow),setImgPath(imageDir.path())+"/"+mainImage);
-                                excelFile.write(QString("A%1").arg(currentExcelRow),detail);
-                                excelFile.write(QString("D%1").arg(currentExcelRow),carMark);
-                                excelFile.write(QString("E%1").arg(currentExcelRow),carModel);
-                                excelFile.write(QString("F%1").arg(currentExcelRow),detailCategory);
-                                excelFile.write(QString("C%1").arg(currentExcelRow),article);
-                                QFile desc(imageDir.path()+"/"+article+".txt");
-                                if(desc.open(QIODevice::ReadOnly)) {
-                                    QTextStream in(&desc);
-                                    for(int i=0;i<5;i++) {
-                                        in.readLine();
                                     }
-                                    excelFile.write(QString("G%1").arg(currentExcelRow),in.readLine());
-                                    //in.readLine();
-                                    excelFile.write(QString("K%1").arg(currentExcelRow),in.readLine());
-                                    excelFile.write(QString("J%1").arg(currentExcelRow),in.readLine());
-                                    excelFile.write(QString("B%1").arg(currentExcelRow),in.readLine());
+                                    excelFile.write(QString("A%1").arg(currentExcelRow),detail);
+                                    excelFile.write(QString("D%1").arg(currentExcelRow),carMark);
+                                    excelFile.write(QString("E%1").arg(currentExcelRow),carModel);
+                                    excelFile.write(QString("F%1").arg(currentExcelRow),detailCategory);
+                                    excelFile.write(QString("C%1").arg(currentExcelRow),article);
+                                    excelFile.write(QString("P%1").arg(currentExcelRow),article);
+                                    //добавление мета-информации
+                                    //meta-title
+                                    excelFile.write(QString("B%1").arg(currentExcelRow),detail+" "+carMark+" "+carModel);//preview
+                                    excelFile.write(QString("L%1").arg(currentExcelRow),detail+" для "+carMark+" "+carModel);//IE_DETAIL_TEXT
+                                    excelFile.write(QString("N%1").arg(currentExcelRow),detail+","+
+                                                    article+","+carMark+","+carModel+","+detailCategory+","+original);//meta_keywords
+                                    excelFile.write(QString("O%1").arg(currentExcelRow),detail+" "+
+                                                    article+" "+carMark+" "+carModel+" "+detailCategory+" "+original);//meta_description
+
+                                    excelFile.write(QString("M%1").arg(currentExcelRow),detail+" "+original
+                                                    +" для "+carMark+" " +carModel);//meta_title
+
+                                    isWritten=true;
+                                }
+                                if(!image.contains(".txt")){
+                                    if(mainImage=="") {
+
+                                        mainImage=image;
+                                        QFile::copy(imageDir.path()+"/"+mainImage,imageOutDir.path()+"/"+mainImage);
+                                        excelFile.write(QString("H%1").arg(currentExcelRow),setImgPath(imageDir.path())+"/"+mainImage);
+                                        continue;
+                                    }
+                                    excelFile.write(QString("H%1").arg(currentExcelRow),setImgPath(imageDir.path())+"/"+mainImage);
+                                    excelFile.write(QString("I%1").arg(currentExcelRow),setImgPath(imageDir.path())+"/"+image);
+                                    isWritten=false;
+                                    currentExcelRow++;
                                 }
                                 QFile::copy(imageDir.path()+"/"+image,imageOutDir.path()+"/"+image);
-                                currentExcelRow++;
                             }
+
                             QApplication::processEvents();
+                        }
+                        if(isWritten){
+                            currentExcelRow++;
                         }
                         mainImage="";
                     }
@@ -158,6 +198,7 @@ void ExcelHandler::exportAllToExcel()
             }
         }
     }
+    exportAll=true;
     excelFile.save();
     this->close();
     delete this;

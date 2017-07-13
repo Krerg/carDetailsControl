@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow)
 {
+
     ui->setupUi(this);
     this->ui->UpdateGalleryProgressBar->setVisible(false);
     this->setAttribute( Qt::WA_DeleteOnClose );
@@ -1842,11 +1843,6 @@ void MainWindow::updateGalleryFinishedSlot()
         QScrollBar *vb = ui->gallery->verticalScrollBar();
         vb->setValue(history->last().row()*115);
         ui->gallery->setCurrentRow(history->last().row(), QItemSelectionModel::Select);
-        //ui->gallery->setCurrentIndex(history->last());
-        //ui->gallery->scroll(0, -1000*3);
-        //ui->gallery->scrollTo(history->last());
-        //ui->gallery->scroll(0, 300);
-        //ui->gallery->scrollTo(history->last(), QAbstractItemView::EnsureVisible);
         history->removeLast();
         isBackPushed=false;
     }
